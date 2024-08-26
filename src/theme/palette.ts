@@ -1,6 +1,7 @@
 const PRIMARY = {
-    main: '#FF6073',
-    light: '#FF7E95',
+    main: '#00A76F',
+    light: 'rgba(0,167, 111,0.08)',
+    dark: '#007867',
     contrastText: '#fff',
 }
 
@@ -11,33 +12,34 @@ const SECONDARY = {
 }
 
 const WARNING = {
-    main: '#FFAC30',
-    light: '#FFDE8A',
+    main: '#FFAB00',
+    light: '#FFF5CC',
     contrastText: '#fff',
 }
 
 const SUCCESS = {
-    main: '#229B16',
-    light: '#54D62C',
+    main: '#22C55E',
+    light: '#77ED8B',
     contrastText: '#fff',
 }
 
 const ERROR = {
-    main: '#FF6073',
-    light: '#FF7E95',
+    main: '#FF5630',
+    light: '#FFAC82',
     contrastText: '#fff',
 }
 
 const INFO = {
-    main: '#42c0eb',
-    light: '#7cdeff',
+    main: '#00B8D9',
+    light: '#00B8D9',
     contrastText: '#fff',
 }
 
 const TEXT_COLOR = {
-    primary: '#212B36',
-    secondary: '#363B64',
+    primary: '#1C252E',
+    secondary: '#637381',
     primaryChannel: 'rgb(99, 115, 129)',
+    disabled: '#919EAB'
 }
 
 const palette = {

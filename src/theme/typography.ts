@@ -45,7 +45,7 @@ const typography = {
     },
     h6: {
         fontWeight: FONT_BOLD,
-        ...responsiveFontSizes({ sm: 12, md: 14, lg: 16 }),
+        ...responsiveFontSizes({ sm: 16, md: 16, lg: 16 }),
     },
     body1: {
         fontWeight: FONT_MEDIUM,
@@ -53,7 +53,7 @@ const typography = {
     },
     body2: {
         fontWeight: FONT_MEDIUM,
-        ...responsiveFontSizes({ sm: 12, md: 14, lg: 16 }),
+        ...responsiveFontSizes({ sm: 14, md: 14, lg: 16 }),
     },
     button: {
         fontWeight: FONT_BOLD,
@@ -62,25 +62,12 @@ const typography = {
     },
     subtitle1: {
         fontWeight: FONT_BOLD,
-        ...responsiveFontSizes({ sm: 14, md: 16, lg: 18 }),
+        ...responsiveFontSizes({ sm: 14, md: 14, lg: 12 }),
     },
     subtitle2: {
         fontWeight: FONT_REGULAR,
-        ...responsiveFontSizes({ sm: 12, md: 14, lg: 16 }),
-    },
-    enText: {
-        ...responsiveFontSizes({ sm: 14, md: 15, lg: 17 }),
-        lineHeight: '17px',
-        letterSpacing: '3px',
-        color: '#a3a3a3',
-        textTransform: 'uppercase',
-    },
-    viText: {
-        ...responsiveFontSizes({ sm: 25, md: 30, lg: 40 }),
-        fontWeight: FONT_BOLD,
-        lineHeight: '40px',
-        marginTop: '10px',
-    },
+        ...responsiveFontSizes({ sm: 12, md: 12, lg: 12 }),
+    }
 }
 
 export default typography
