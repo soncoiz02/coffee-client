@@ -1,7 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
+import loadingReducer from "./feature/loadingSlice";
 // ...
 const store = configureStore({
     reducer: {
+        loading: loadingReducer
     },
 });
 export type RootState = ReturnType<typeof store.getState>;

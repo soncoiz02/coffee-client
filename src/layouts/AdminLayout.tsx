@@ -1,6 +1,6 @@
 import { faBell, faBowlRice, faBoxesStacked, faChartSimple, faGear, faHouse, faList, faRightFromBracket, faUser, IconDefinition } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Avatar, Box, Divider, IconButton, Link, List, ListItem, ListItemIcon, ListItemText, Popover, Stack, styled, Typography, useTheme } from '@mui/material'
+import { Avatar, Box, Container, Divider, IconButton, Link, List, ListItem, ListItemIcon, ListItemText, Popover, Stack, styled, Typography, useTheme } from '@mui/material'
 import { MouseEvent, useState } from 'react'
 import { Outlet, Link as RouterLink, useLocation } from 'react-router-dom'
 import ShadowBox from '../components/ShadowBox'
@@ -12,6 +12,7 @@ type SidebarTypes = {
     children: {
         title: string
         path: string
+        activePath: string[]
         icon: IconDefinition
     }[]
 }
@@ -26,21 +27,25 @@ const SIDEBAR_ITEM: SidebarTypes[] = [
             {
                 title: 'Trang chủ',
                 path: '/admin',
+                activePath: ['/admin'],
                 icon: faHouse
             },
             {
                 title: 'Danh mục sản phẩm',
                 path: '/admin/product-category',
+                activePath: ['/admin/product-category'],
                 icon: faList
             },
             {
                 title: 'Danh sách sản phẩm',
                 path: '/admin/product-list',
+                activePath: ['/admin/product-list', '/admin/product-form'],
                 icon: faBoxesStacked
             },
             {
                 title: 'Danh sách nguyên liệu',
                 path: '/admin/ingredient-list',
+                activePath: ['/admin/ingredient-list'],
                 icon: faBowlRice
             }
         ]
@@ -51,6 +56,7 @@ const SIDEBAR_ITEM: SidebarTypes[] = [
             {
                 title: 'Tổng quát',
                 path: '/admin/statistical',
+                activePath: ['/admin/statistical'],
                 icon: faChartSimple
             }
         ]
@@ -65,7 +71,8 @@ const SideBarWrapper = styled(Stack)(({ theme }) => ({
     left: 0,
     padding: '16px',
     background: '#fff',
-    borderRight: `1px solid ${theme.palette.grey[200]}`
+    borderRight: `1px solid ${theme.palette.grey[200]}`,
+    zIndex: 100
 }))
 
 const CustomLink = styled(Link)(({ theme }) => ({
@@ -101,7 +108,8 @@ const HeaderWrapper = styled(Stack)(({ theme }) => ({
     backdropFilter: 'blur(6px)',
     borderRadius: '0 24px',
     boxShadow: CUSTOM_STYLE_PROPERTY.boxShadow,
-    padding: '16px 24px'
+    padding: '16px 24px',
+    zIndex: 90
 }))
 
 const UserAction = styled(Stack)(({ theme }) => ({
@@ -127,13 +135,13 @@ const AdminLayout = () => {
         setAnchorEl(null);
     };
 
-    const getActiveColor = (path: string) => {
-        return activeLink(pathname, path) ? theme.palette.primary.main : theme.palette.text.secondary
+    const getActiveColor = (paths: string[]) => {
+        return activeLink(pathname, paths) ? theme.palette.primary.main : theme.palette.text.secondary
     }
 
     return (
         <Stack direction='row' width='100%'>
-            <SideBarWrapper gap={4}>
+            <SideBarWrapper sx={{ position: { xs: 'fixed', md: 'sticky' } }} gap={4}>
                 <SidebarHead>
                     <Typography color='#fff' textTransform='uppercase' fontWeight={800} letterSpacing={1.1} variant='h3'>Quản trị</Typography>
                 </SidebarHead>
@@ -145,11 +153,11 @@ const AdminLayout = () => {
                                 <Stack gap='8px'>
                                     {
                                         item.children.map((child, i) => (
-                                            <CustomLink underline='none' className={activeLink(pathname, child.path) ? 'active' : ''} key={i} component={RouterLink} to={child.path}>
+                                            <CustomLink underline='none' className={activeLink(pathname, child.activePath) ? 'active' : ''} key={i} component={RouterLink} to={child.path}>
                                                 <div className="icon">
-                                                    <FontAwesomeIcon fontSize='18px' color={getActiveColor(child.path)} icon={child.icon} />
+                                                    <FontAwesomeIcon fontSize='18px' color={getActiveColor(child.activePath)} icon={child.icon} />
                                                 </div>
-                                                <Typography variant='h6' fontWeight='600' color={getActiveColor(child.path)}>{child.title}</Typography>
+                                                <Typography variant='h6' fontWeight='600' color={getActiveColor(child.activePath)}>{child.title}</Typography>
                                             </CustomLink>
                                         ))
                                     }
@@ -159,7 +167,7 @@ const AdminLayout = () => {
                     }
                 </Stack>
             </SideBarWrapper >
-            <Stack sx={{ width: `calc(100% - ${SIDEBAR_WIDTH}px)` }} >
+            <Stack sx={{ width: { xs: '100%', md: `calc(100% - ${SIDEBAR_WIDTH}px)` } }} >
                 <HeaderWrapper direction='row' justifyContent='flex-end' alignItems='center' gap="20px">
                     <IconButton>
                         <FontAwesomeIcon icon={faBell} />
@@ -199,11 +207,9 @@ const AdminLayout = () => {
                         </ShadowBox>
                     </Popover>
                 </HeaderWrapper>
-                <Box sx={{
-                    padding: '36px 24px'
-                }}>
+                <Container maxWidth='xl' sx={{ paddingY: '36px' }}>
                     <Outlet />
-                </Box>
+                </Container>
             </Stack>
         </Stack >
     )

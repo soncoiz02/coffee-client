@@ -11,6 +11,27 @@ const MuiThemeProvider = ({ children }: { children: ReactNode }) => {
             typography,
             palette,
             breakpoints: breakpoint,
+            components: {
+                MuiButton: {
+                    styleOverrides: {
+                        root: ({ theme }) => ({
+                            variants: [
+                                {
+                                    props: { variant: 'contained' },
+                                    style: {
+                                        borderRadius: '8px',
+                                        boxShadow: 'none',
+                                        '&:hover': {
+                                            background: theme.palette.primary.main,
+                                            boxShadow: `0 2px 5px 5px ${theme.palette.primary.light}`
+                                        }
+                                    }
+                                }
+                            ]
+                        })
+                    }
+                }
+            }
         },
         viVN,
     )

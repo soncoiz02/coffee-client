@@ -1,0 +1,97 @@
+import { faAngleRight, faCirclePlus, faTrashCan } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Chip, Collapse, Divider, IconButton, Stack, Tooltip, Typography, useTheme } from '@mui/material'
+import { useEffect, useState } from 'react'
+import ShadowBox from '../../../components/ShadowBox'
+import { Wrapper } from './index'
+import Form from './sections/Form'
+
+const ProductForm = () => {
+    const [formId, setFormId] = useState<string[]>(['form-1'])
+    const [listHideForm, setListHideForm] = useState<string[]>([])
+    const theme = useTheme()
+
+    const checkShowForm = (id: string) => {
+        return !listHideForm.includes(id)
+    }
+
+    const handleVisibleForm = (id: string) => {
+        const isExistId = listHideForm.find(p => p === id)
+        if (isExistId) {
+            const newFormId = listHideForm.filter(p => p !== id)
+            setListHideForm(newFormId)
+        }
+        else {
+            setListHideForm([...listHideForm, id])
+        }
+    }
+
+    const addForm = () => {
+        setFormId([...formId, `form-${formId.length + 1}`])
+    }
+
+    const removeForm = (id: string) => {
+        const newFormId = formId.filter(p => p !== id)
+        const newHiddenForm = listHideForm.filter(p => p !== id)
+        setFormId(newFormId)
+        setListHideForm(newHiddenForm)
+    }
+
+    useEffect(() => {
+
+    }, [formId])
+
+    return (
+        <ShadowBox sx={{ borderRadius: '20px' }}>
+            <Wrapper sx={{ minHeight: '60vh' }}>
+                <Stack direction='row' alignItems='center' justifyContent='space-between'>
+                    <Typography variant='h2'>Tạo sản phẩm</Typography>
+                    <Stack direction='row' alignItems='center' gap={{ xs: 1, md: 2 }}>
+                        <Tooltip title="Thêm sản phẩm">
+                            <IconButton color='primary' onClick={addForm}>
+                                <FontAwesomeIcon icon={faCirclePlus} />
+                            </IconButton>
+                        </Tooltip>
+                        {/* <Button variant='contained' sx={{ padding: '6px 26px' }}>
+                            Lưu
+                        </Button> */}
+                    </Stack>
+                </Stack>
+                <Stack>
+                    {
+                        formId.map((id, index) => (
+                            <Stack gap={2} key={id}>
+                                <Stack direction='row' alignItems='center' width='100%' gap={1}>
+                                    <FontAwesomeIcon
+                                        style={{
+                                            cursor: 'pointer',
+                                            transition: '0.5s',
+                                            transform: `rotate(${checkShowForm(id) ? '90deg' : '0deg'})`
+                                        }}
+                                        color={theme.palette.grey[500]}
+                                        icon={faAngleRight}
+                                        onClick={() => handleVisibleForm(id)}
+                                    />
+                                    <Divider sx={{ flex: 1 }}>
+                                        <Chip label={`Sản phẩm ${index + 1}`} />
+                                    </Divider>
+                                    {
+                                        index > 0 &&
+                                        <IconButton color="error" onClick={() => removeForm(id)}>
+                                            <FontAwesomeIcon icon={faTrashCan} />
+                                        </IconButton>
+                                    }
+                                </Stack>
+                                <Collapse in={checkShowForm(id)}>
+                                    <Form />
+                                </Collapse>
+                            </Stack>
+                        ))
+                    }
+                </Stack>
+            </Wrapper>
+        </ShadowBox>
+    )
+}
+
+export default ProductForm
