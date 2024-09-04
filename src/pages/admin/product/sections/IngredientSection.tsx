@@ -3,6 +3,9 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Dispatch, useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { deepCopy } from "../../../../utils/deepCopy";
+import { toastServices } from "../../../../services/toast/toastServices";
+import { IngredientServices } from "../../../../services/ingredient/ingredientServices";
+import { ListIngredient, ResGetIngredient } from "../../../../types/ingredient";
 
 type PropsTypes = {
   methods: UseFormReturn;
@@ -48,6 +51,7 @@ const IngredientSection = ({ methods, additionalValue, setAdditionalValue, isSub
     cols: [],
     rows: [],
   });
+  const [listIngredients, setListIngredients] = useState<ListIngredient[]>([])
 
   const {
     formState: { isSubmitted },
@@ -62,6 +66,17 @@ const IngredientSection = ({ methods, additionalValue, setAdditionalValue, isSub
     const priceType = getValues("priceType");
     getIngredientQuantity(priceType, values);
   };
+
+  const handleGetListIngredients = async () => {
+    try {
+      const res = await IngredientServices.getListIngredients()
+      if (res.status === "success")
+        setListIngredients(res.data);
+
+    } catch (error: any) {
+      toastServices.error(error.message)
+    }
+  }
 
   const getIngredientQuantity = (priceType: number, ingredients: any) => {
     if (ingredients.length > 0) {
@@ -86,11 +101,12 @@ const IngredientSection = ({ methods, additionalValue, setAdditionalValue, isSub
           row[val.code] = 0;
           row.sizeCode = "singlePrice";
           row.size = "Giá đơn";
+          row._id = val._id
         });
         setQuantityGrid({ cols, rows: [row] });
         updateAdditionalData(row, { cols, rows: [row] });
       } else if (priceType === 1) {
-        const priceBySize = additionalValue.price;
+        const priceBySize = additionalValue.priceBySize;
         if (priceBySize !== null) {
           const rows = Object.keys(priceBySize).map((key: any) => {
             const row: any = {};
@@ -99,6 +115,7 @@ const IngredientSection = ({ methods, additionalValue, setAdditionalValue, isSub
               row.id = `${key}-${val.code}-${val.id}`;
               row.size = priceBySize[key].label;
               row.sizeCode = key;
+              row._id = val._id
             });
             return {
               ...row,
@@ -125,9 +142,13 @@ const IngredientSection = ({ methods, additionalValue, setAdditionalValue, isSub
   };
 
   useEffect(() => {
+    handleGetListIngredients()
+  }, [])
+
+  useEffect(() => {
     setQuantityGrid({ cols: [], rows: [] });
     getIngredientQuantity(priceType, listIngredient);
-  }, [priceType, additionalValue.price]);
+  }, [priceType, additionalValue.priceBySize]);
 
   const validateIngredient = () => {
     if (listIngredient.length === 0 && isSubmitted) {
@@ -166,9 +187,10 @@ const IngredientSection = ({ methods, additionalValue, setAdditionalValue, isSub
       const cloneItem = deepCopy(item);
       delete cloneItem.id;
       delete cloneItem.sizeCode;
+      delete cloneItem._id;
       if (cloneItem.size) delete cloneItem.size;
       const ingredients = Object.keys(cloneItem).map((key: string) => {
-        const ingre = ingredientOpts.find((p) => p.code === key);
+        const ingre = listIngredients.find((p) => p.code === key);
         return {
           ...ingre,
           quantity: cloneItem[key],
@@ -215,7 +237,7 @@ const IngredientSection = ({ methods, additionalValue, setAdditionalValue, isSub
       <Grid item xs={12}>
         <Autocomplete
           multiple
-          options={ingredientOpts}
+          options={listIngredients}
           disableCloseOnSelect
           value={listIngredient}
           disabled={isSubmitSuccess}
@@ -225,7 +247,7 @@ const IngredientSection = ({ methods, additionalValue, setAdditionalValue, isSub
           renderOption={(props, option, { selected }) => {
             const { key, ...optionProps } = props;
             return (
-              <li key={option.id} {...optionProps}>
+              <li key={option._id} {...optionProps}>
                 <Checkbox style={{ marginRight: 8 }} checked={selected} />
                 {option.name}
               </li>

@@ -6,7 +6,7 @@ import * as yup from "yup";
 import RHFProvider from "../../../../components/RHF/RHFProvider";
 import RHFSelect from "../../../../components/RHF/RHFSelect";
 import RHFTextField from "../../../../components/RHF/RHFTextField";
-import { BaseProductType } from "../../../../types/product";
+import { BaseProductType, ProductType } from "../../../../types/product";
 import IngredientSection from "./IngredientSection";
 import PriceSection from "./PriceSection";
 import UploadImg from "./UploadImg";
@@ -14,21 +14,9 @@ import useDebounce from "../../../../hooks/useDebounce";
 import { toastServices } from "../../../../services/toast/toastServices";
 import { useAppDispatch } from "../../../../redux/hook";
 import { hideLoading, showLoading } from "../../../../redux/feature/loadingSlice";
-
-const categoryOpts = [
-  {
-    label: "Cà phê",
-    id: "1",
-  },
-  {
-    label: "Trà hoa quả",
-    id: "2",
-  },
-  {
-    label: "Sữa chua",
-    id: "3",
-  },
-];
+import { ProductServices } from "../../../../services/product/productServices";
+import { CategoryServices } from "../../../../services/category/categoryServices";
+import { BaseCategory } from "../../../../types/category";
 
 export interface DataType extends BaseProductType {
   priceType: 0 | 1;
@@ -81,11 +69,12 @@ const statusOpts = [
 
 const Form = ({ formId, setProductName }: PropsType) => {
   const [additionalValue, setAdditionalValue] = useState<any>({
-    price: null,
+    priceBySize: null,
     ingredient: null,
     img: null,
   });
   const [isSubmitSuccess, setIsSubmitSuccess] = useState<boolean>(false);
+  const [categoryOpts, setCategoryOpts] = useState<BaseCategory[]>([]);
 
   const dispatch = useAppDispatch();
 
@@ -105,13 +94,13 @@ const Form = ({ formId, setProductName }: PropsType) => {
   const getAddtionalError = (data: any) => {
     let isValid = true;
     if (data.priceType === 1) {
-      if (Object.keys(additionalValue.price).length === 0) {
+      if (Object.keys(additionalValue.priceBySize).length === 0) {
         toastServices.error("Chưa nhập giá sản phẩm", {
           position: "top-center",
         });
         isValid = false;
       } else {
-        const priceBySize = additionalValue.price;
+        const priceBySize = additionalValue.priceBySize;
         let isError = false;
         Object.keys(priceBySize).forEach((key: any) => {
           if (!priceBySize[key].value) {
@@ -138,26 +127,62 @@ const Form = ({ formId, setProductName }: PropsType) => {
   };
 
   const onSubmit = (values: any) => {
-    const data = {
-      ...values,
-      ...additionalValue,
-    };
-    const isValid = getAddtionalError(data);
+    const isValid = getAddtionalError(values);
     if (isValid) {
-      dispatch(showLoading());
-      setTimeout(() => {
-        console.log(data);
+      const ingredients = additionalValue.ingredient.map((ingre: any) => {
+        return {
+          priceType: ingre.type.code,
+          ingredients: ingre.ingredients.map((p: any) => ({ ingredient: p._id, quantity: p.quantity })),
+        }
+      })
 
-        dispatch(hideLoading());
-        setIsSubmitSuccess(true);
-      }, 2000);
+      const data: any = {
+        product: values,
+        ingredients,
+      }
+      if (values.priceType === 1) {
+        const priceBySize = additionalValue.priceBySize
+        data.priceBySize = Object.keys(priceBySize).map((key: any) => ({ size: priceBySize[key].id, price: priceBySize[key].value }))
+      }
+
+      handleCreateProduct(data)
     }
   };
+
+  const handleCreateProduct = async (data: ProductType) => {
+    dispatch(showLoading());
+    try {
+      const res = await ProductServices.createProduct(data)
+      if (res.status === "success") {
+        toastServices.success(res.message)
+        setIsSubmitSuccess(true);
+        dispatch(hideLoading());
+      }
+    } catch (error: any) {
+      toastServices.error(error.message)
+      dispatch(hideLoading());
+    }
+  }
 
   const handleDisableSubmitBtn = () => {
     if (isSubmitSuccess) return true;
     return false;
   };
+
+  const handleGetListCategory = async () => {
+    try {
+      const res = await CategoryServices.getList()
+      if (res.status === "success") {
+        setCategoryOpts(res.data);
+      }
+    } catch (error: any) {
+      toastServices.error(error.message)
+    }
+  }
+
+  useEffect(() => {
+    handleGetListCategory()
+  }, [])
 
   useEffect(() => {
     setProductName(formId, debounceProductName);
@@ -172,9 +197,13 @@ const Form = ({ formId, setProductName }: PropsType) => {
           </Grid>
           <Grid item xs={12} md={4}>
             <RHFSelect disabled={isSubmitSuccess} name="category" label="Danh mục">
-              {categoryOpts.map((item) => (
-                <MenuItem key={item.id} value={item.id}>
-                  {item.label}
+              {
+                !categoryOpts &&
+                <MenuItem>Trống</MenuItem>
+              }
+              {categoryOpts && categoryOpts.map((item) => (
+                <MenuItem key={item._id} value={item._id}>
+                  {item.name}
                 </MenuItem>
               ))}
             </RHFSelect>

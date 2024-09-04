@@ -20,3 +20,14 @@ export interface ProductType extends BaseProductType {
     singlePrice?: number
     ingredient: ProductIngredient[]
 }
+
+export interface BaseProductSize {
+    _id: string
+    name: string
+    code: string
+}
+
+export interface ResGetListSize {
+    status: string
+    data: BaseProductSize[]
+}
