@@ -11,15 +11,13 @@ import { Provider } from 'react-redux'
 import store from './redux/store.ts'
 import Loading from './components/Loading.tsx'
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <Provider store={store}>
-      <MuiThemeProvider>
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <App />
-          <ToastContainer />
-          <Loading />
-        </LocalizationProvider>
-      </MuiThemeProvider>
-    </Provider>
-  </StrictMode>,
+  <Provider store={store}>
+    <MuiThemeProvider>
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <App />
+        <ToastContainer />
+        <Loading />
+      </LocalizationProvider>
+    </MuiThemeProvider>
+  </Provider>
 )

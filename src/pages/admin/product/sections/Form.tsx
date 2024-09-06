@@ -6,7 +6,7 @@ import * as yup from "yup";
 import RHFProvider from "../../../../components/RHF/RHFProvider";
 import RHFSelect from "../../../../components/RHF/RHFSelect";
 import RHFTextField from "../../../../components/RHF/RHFTextField";
-import { BaseProductType, ProductType } from "../../../../types/product";
+import { BaseProductSize, BaseProductType, ProductType } from "../../../../types/product";
 import IngredientSection from "./IngredientSection";
 import PriceSection from "./PriceSection";
 import UploadImg from "./UploadImg";
@@ -17,6 +17,8 @@ import { hideLoading, showLoading } from "../../../../redux/feature/loadingSlice
 import { ProductServices } from "../../../../services/product/productServices";
 import { CategoryServices } from "../../../../services/category/categoryServices";
 import { BaseCategory } from "../../../../types/category";
+import { IngredientServices } from "../../../../services/ingredient/ingredientServices";
+import { BaseIngredient } from "../../../../types/ingredient";
 
 export interface DataType extends BaseProductType {
   priceType: 0 | 1;
@@ -75,6 +77,8 @@ const Form = ({ formId, setProductName }: PropsType) => {
   });
   const [isSubmitSuccess, setIsSubmitSuccess] = useState<boolean>(false);
   const [categoryOpts, setCategoryOpts] = useState<BaseCategory[]>([]);
+  const [sizeOpts, setSizeOpts] = useState<BaseProductSize[]>([])
+  const [listIngredientOtps, setListIngredientOtps] = useState<BaseIngredient[]>([]);
 
   const dispatch = useAppDispatch();
 
@@ -169,9 +173,9 @@ const Form = ({ formId, setProductName }: PropsType) => {
     return false;
   };
 
-  const handleGetListCategory = async () => {
+  const handleGetListCategory = async (signal: any) => {
     try {
-      const res = await CategoryServices.getList()
+      const res = await CategoryServices.getList({ signal })
       if (res.status === "success") {
         setCategoryOpts(res.data);
       }
@@ -180,8 +184,41 @@ const Form = ({ formId, setProductName }: PropsType) => {
     }
   }
 
+  const handleGetProductSize = async (signal: any) => {
+    try {
+      const res = await ProductServices.getListSize({ signal })
+      if (res.status === 'success') {
+        setSizeOpts(res.data)
+      }
+    } catch (error: any) {
+      toastServices.error(error.message)
+    }
+  }
+
+  const handleGetListIngredients = async (signal: any) => {
+    try {
+      const res = await IngredientServices.getListIngredients({ signal })
+      if (res.status === "success")
+        setListIngredientOtps(res.data);
+
+    } catch (error: any) {
+      toastServices.error(error.message)
+    }
+  }
+
   useEffect(() => {
-    handleGetListCategory()
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+
+    Promise.all([
+      handleGetListCategory(signal),
+      handleGetProductSize(signal),
+      handleGetListIngredients(signal)
+    ])
+
+    return () => {
+      abortController.abort()
+    }
   }, [])
 
   useEffect(() => {
@@ -223,6 +260,7 @@ const Form = ({ formId, setProductName }: PropsType) => {
               methods={methods}
               additionalValue={additionalValue}
               setAdditionalValue={setAdditionalValue}
+              sizeOpts={sizeOpts}
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -234,6 +272,7 @@ const Form = ({ formId, setProductName }: PropsType) => {
               methods={methods}
               additionalValue={additionalValue}
               setAdditionalValue={setAdditionalValue}
+              listIngredientOtps={listIngredientOtps}
             />
           </Grid>
           <Grid item xs={12}>

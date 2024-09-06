@@ -35,12 +35,12 @@ type PropsTypes = {
     additionalValue: any;
     setAdditionalValue: Dispatch<any>;
     isSubmitSuccess: boolean;
+    sizeOpts: BaseProductSize[]
 };
 
-const PriceSection = ({ methods, additionalValue, setAdditionalValue, isSubmitSuccess }: PropsTypes) => {
+const PriceSection = ({ methods, additionalValue, setAdditionalValue, isSubmitSuccess, sizeOpts }: PropsTypes) => {
     const [priceType, setPriceType] = useState(0);
     const [listSize, setListSize] = useState<BaseProductSize[]>([]);
-    const [sizeOpts, setSizeOpts] = useState<BaseProductSize[]>([])
 
     const {
         clearErrors,
@@ -164,21 +164,6 @@ const PriceSection = ({ methods, additionalValue, setAdditionalValue, isSubmitSu
             message: "",
         };
     };
-
-    const handleGetProductSize = async () => {
-        try {
-            const res = await ProductServices.getListSize()
-            if (res.status === 'success') {
-                setSizeOpts(res.data)
-            }
-        } catch (error: any) {
-            toastServices.error(error.message)
-        }
-    }
-
-    useEffect(() => {
-        handleGetProductSize()
-    }, [])
 
     return (
         <Grid container spacing={2}>

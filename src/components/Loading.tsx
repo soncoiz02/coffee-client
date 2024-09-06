@@ -2,7 +2,7 @@ import { Backdrop, CircularProgress, styled } from '@mui/material'
 import React from 'react'
 import { useAppSelector } from '../redux/hook'
 
-const CustomBackdrop = styled(Backdrop)(({ theme }) => ({
+export const CustomBackdrop = styled(Backdrop)(({ theme }) => ({
     color: theme.palette.primary.main,
     zIndex: theme.zIndex.drawer + 1,
     backgroundColor: 'rgba(255,255,255,0.1)',

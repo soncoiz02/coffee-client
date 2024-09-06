@@ -2,47 +2,18 @@ import { Autocomplete, Checkbox, Grid, TextField } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Dispatch, useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
+import { BaseIngredient } from "../../../../types/ingredient";
 import { deepCopy } from "../../../../utils/deepCopy";
-import { toastServices } from "../../../../services/toast/toastServices";
-import { IngredientServices } from "../../../../services/ingredient/ingredientServices";
-import { ListIngredient, ResGetIngredient } from "../../../../types/ingredient";
 
 type PropsTypes = {
   methods: UseFormReturn;
   additionalValue: any;
   setAdditionalValue: Dispatch<any>;
   isSubmitSuccess: boolean;
+  listIngredientOtps: BaseIngredient[]
 };
 
-const ingredientOpts = [
-  {
-    id: "1",
-    name: "Bột cà phê",
-    code: "botCaPhe",
-  },
-  {
-    id: "2",
-    name: "Sữa tươi không đường",
-    code: "suaTuoiKhongDuong",
-  },
-  {
-    id: "3",
-    name: "Sữa đặc",
-    code: "suaDac",
-  },
-  {
-    id: "4",
-    name: "Bột Onemix",
-    code: "botOnemix",
-  },
-  {
-    id: "5",
-    name: "Bột cacao",
-    code: "botCacao",
-  },
-];
-
-const IngredientSection = ({ methods, additionalValue, setAdditionalValue, isSubmitSuccess }: PropsTypes) => {
+const IngredientSection = ({ methods, additionalValue, setAdditionalValue, isSubmitSuccess, listIngredientOtps }: PropsTypes) => {
   const [listIngredient, setListIngredient] = useState([]);
   const [quantityGrid, setQuantityGrid] = useState<{
     cols: GridColDef[];
@@ -51,7 +22,6 @@ const IngredientSection = ({ methods, additionalValue, setAdditionalValue, isSub
     cols: [],
     rows: [],
   });
-  const [listIngredients, setListIngredients] = useState<ListIngredient[]>([])
 
   const {
     formState: { isSubmitted },
@@ -67,16 +37,6 @@ const IngredientSection = ({ methods, additionalValue, setAdditionalValue, isSub
     getIngredientQuantity(priceType, values);
   };
 
-  const handleGetListIngredients = async () => {
-    try {
-      const res = await IngredientServices.getListIngredients()
-      if (res.status === "success")
-        setListIngredients(res.data);
-
-    } catch (error: any) {
-      toastServices.error(error.message)
-    }
-  }
 
   const getIngredientQuantity = (priceType: number, ingredients: any) => {
     if (ingredients.length > 0) {
@@ -142,10 +102,6 @@ const IngredientSection = ({ methods, additionalValue, setAdditionalValue, isSub
   };
 
   useEffect(() => {
-    handleGetListIngredients()
-  }, [])
-
-  useEffect(() => {
     setQuantityGrid({ cols: [], rows: [] });
     getIngredientQuantity(priceType, listIngredient);
   }, [priceType, additionalValue.priceBySize]);
@@ -190,7 +146,7 @@ const IngredientSection = ({ methods, additionalValue, setAdditionalValue, isSub
       delete cloneItem._id;
       if (cloneItem.size) delete cloneItem.size;
       const ingredients = Object.keys(cloneItem).map((key: string) => {
-        const ingre = listIngredients.find((p) => p.code === key);
+        const ingre = listIngredientOtps.find((p) => p.code === key);
         return {
           ...ingre,
           quantity: cloneItem[key],
@@ -237,7 +193,7 @@ const IngredientSection = ({ methods, additionalValue, setAdditionalValue, isSub
       <Grid item xs={12}>
         <Autocomplete
           multiple
-          options={listIngredients}
+          options={listIngredientOtps}
           disableCloseOnSelect
           value={listIngredient}
           disabled={isSubmitSuccess}
