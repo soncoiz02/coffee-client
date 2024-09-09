@@ -1,5 +1,4 @@
 import { Backdrop, CircularProgress, styled } from '@mui/material'
-import React from 'react'
 import { useAppSelector } from '../redux/hook'
 
 export const CustomBackdrop = styled(Backdrop)(({ theme }) => ({

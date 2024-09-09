@@ -1,6 +1,6 @@
 import { Box, BoxProps } from '@mui/material'
-import React, { ReactNode } from 'react'
-import { CUSTOM_STYLE_PROPERTY } from '../constants/styleProperty'
+import { ReactNode } from 'react'
+import { CONSTANTS } from '../constants'
 
 type PropsType = { children: ReactNode } & BoxProps
 
@@ -9,7 +9,7 @@ const ShadowBox = ({ children, ...other }: PropsType) => {
         <Box
             sx={{
                 background: '#fff',
-                boxShadow: CUSTOM_STYLE_PROPERTY.boxShadow,
+                boxShadow: CONSTANTS.CUSTOM_STYLE_PROPERTY.boxShadow,
                 ...other.sx
             }}
         >{children}</Box>

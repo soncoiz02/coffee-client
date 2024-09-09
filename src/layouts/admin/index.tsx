@@ -1,8 +1,7 @@
-import { CircularProgress, Container, Stack, styled, useTheme } from '@mui/material'
-import { MouseEvent, Suspense, useState } from 'react'
+import { CircularProgress, Container, Stack } from '@mui/material'
+import { Suspense } from 'react'
 import { Outlet } from 'react-router-dom'
 import { CustomBackdrop } from '../../components/Loading'
-import { CUSTOM_STYLE_PROPERTY } from '../../constants/styleProperty'
 import Header from './Header'
 import SideBar from './SideBar'
 

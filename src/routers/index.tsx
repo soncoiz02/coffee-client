@@ -6,7 +6,7 @@ const ProductForm = lazy(() => import("../pages/admin/product/ProductForm"))
 const AuthLayout = lazy(() => import("../layouts/AuthLayout"))
 const MainLayout = lazy(() => import("../layouts/MainLayout"))
 const AdminLayout = lazy(() => import("../layouts/admin"))
-const IngredientGrid = lazy(() => import("../pages/admin/ingredients/IngredientGrid"))
+const IngredientGrid = lazy(() => import("../pages/admin/ingredients/sections/grid/IngredientGrid"))
 const ListIngredients = lazy(() => import("../pages/admin/ingredients"))
 
 const Routers = () => {

@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Avatar, Divider, IconButton, Popover, Stack, styled, Typography, useTheme } from '@mui/material'
 import { MouseEvent, useState } from 'react'
 import ShadowBox from '../../components/ShadowBox'
-import { CUSTOM_STYLE_PROPERTY } from '../../constants/styleProperty'
+import { CONSTANTS } from '../../constants'
 
 const HeaderWrapper = styled(Stack)(({ theme }) => ({
     width: '100%',
@@ -14,7 +14,7 @@ const HeaderWrapper = styled(Stack)(({ theme }) => ({
     background: 'rgba(255,255,255,0.8)',
     backdropFilter: 'blur(6px)',
     borderRadius: '0 24px',
-    boxShadow: CUSTOM_STYLE_PROPERTY.boxShadow,
+    boxShadow: CONSTANTS.CUSTOM_STYLE_PROPERTY.boxShadow,
     padding: '16px 24px',
     zIndex: 90
 }))
@@ -25,7 +25,7 @@ const UserAction = styled(Stack)(({ theme }) => ({
     borderRadius: '4px',
     cursor: 'pointer',
     '&:hover': {
-        background: CUSTOM_STYLE_PROPERTY.hoverBg
+        background: CONSTANTS.CUSTOM_STYLE_PROPERTY.hoverBg
     }
 }))
 

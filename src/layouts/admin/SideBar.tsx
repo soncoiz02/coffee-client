@@ -4,9 +4,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Box, Collapse, Link, Stack, styled, Typography, useTheme } from '@mui/material'
 import { MouseEvent, useState } from 'react'
 import { Link as RouterLink, useLocation } from 'react-router-dom'
-import { CUSTOM_STYLE_PROPERTY } from '../../constants/styleProperty'
-import { activeLink } from '../../utils/activeLink'
 import { SIDEBAR_WIDTH } from '.'
+import { CONSTANTS } from '../../constants'
+import { activeLink } from '../../utils/activeLink'
 
 const SideBarWrapper = styled(Stack)(({ theme }) => ({
     width: SIDEBAR_WIDTH,
@@ -32,7 +32,7 @@ const CustomLink = styled(Link)(({ theme }) => ({
         borderRadius: '0 8px 8px 0'
     },
     '&:hover': {
-        background: CUSTOM_STYLE_PROPERTY.hoverBg
+        background: CONSTANTS.CUSTOM_STYLE_PROPERTY.hoverBg
     }
 }))
 
@@ -46,36 +46,13 @@ const SidebarHead = styled(Box)(({ theme }) => ({
     padding: '24px'
 }))
 
-const HeaderWrapper = styled(Stack)(({ theme }) => ({
-    width: '100%',
-    position: 'sticky',
-    top: 0,
-    right: 0,
-    background: 'rgba(255,255,255,0.8)',
-    backdropFilter: 'blur(6px)',
-    borderRadius: '0 24px',
-    boxShadow: CUSTOM_STYLE_PROPERTY.boxShadow,
-    padding: '16px 24px',
-    zIndex: 90
-}))
-
-const UserAction = styled(Stack)(({ theme }) => ({
-    width: '180px',
-    padding: '8px 12px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    '&:hover': {
-        background: CUSTOM_STYLE_PROPERTY.hoverBg
-    }
-}))
-
 const CustomChildLink = styled(Link)(({ theme }) => ({
     width: "90%",
     padding: '10px 14px',
     borderRadius: '8px',
     alignSelf: "flex-end",
     '&:hover': {
-        background: CUSTOM_STYLE_PROPERTY.hoverBg
+        background: CONSTANTS.CUSTOM_STYLE_PROPERTY.hoverBg
     },
 }))
 
