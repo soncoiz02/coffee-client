@@ -20,7 +20,12 @@ const error = (message: string, ...options: any) => {
   return toast.error(message, { ...baseOptions, ...options });
 };
 
+const info = (message: string, ...options: any) => {
+  return toast.info(message, { ...baseOptions, ...options });
+};
+
 export const toastServices = {
   success,
   error,
+  info
 };

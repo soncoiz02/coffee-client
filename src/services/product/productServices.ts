@@ -1,11 +1,12 @@
-import { ProductType, ResGetListSize } from "../../types/product";
+import { ProductType, ResGetGridData, ResGetListSize } from "../../types/product";
 import { BaseApi } from "../baseApi";
 
 const ProductApiIns = new BaseApi('/product')
 
 const URLS = {
     create: "/create-product",
-    getSize: "/get-list-size"
+    getSize: "/get-list-size",
+    getGridData: "/get-grid-data"
 }
 
 type CreateProductRes = {
@@ -22,5 +23,8 @@ export const ProductServices = {
     },
     getListSize: (...options: any) => {
         return ProductApiIns.get<ResGetListSize>(URLS.getSize, ...options)
+    },
+    getGridData: (...options: any) => {
+        return ProductApiIns.get<ResGetGridData>(URLS.getGridData, ...options)
     }
 }

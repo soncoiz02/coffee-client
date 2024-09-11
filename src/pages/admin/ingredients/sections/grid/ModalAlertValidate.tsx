@@ -48,8 +48,6 @@ const ModalAlertValidate = ({ listErrors }: PropsType) => {
         <Modal
             open={open}
             onClose={handleClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
             sx={{
                 zIndex: (theme) => theme.zIndex.drawer + 1,
                 backgroundColor: 'rgba(0,0,0,0.1)',
