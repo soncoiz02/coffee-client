@@ -1,11 +1,10 @@
 import { DataGrid, DataGridProps, GridCallbackDetails, GridColDef, GridPaginationModel } from '@mui/x-data-grid'
-import React, { Dispatch, useState } from 'react'
+import React, { Dispatch, useEffect, useState } from 'react'
 import { getQueryString } from '../../utils/queryString'
 import { useSearchParams } from 'react-router-dom'
 
 
 export type GridStateType = {
-    isLoading: boolean
     page: number
     pageSize: number
 }
@@ -24,8 +23,11 @@ const InforGrid = ({ columns, rows, rowCount, ...other }: InforGridType) => {
     const [gridState, setGridState] = useState<GridStateType>({
         page: 0,
         pageSize: 10,
-        isLoading: false
     })
+
+    useEffect(() => {
+        setQueryParams(gridState)
+    }, [])
 
     const handlePaginationModelChange = (model: GridPaginationModel, detail: GridCallbackDetails) => {
         const { page, pageSize } = model
@@ -55,7 +57,6 @@ const InforGrid = ({ columns, rows, rowCount, ...other }: InforGridType) => {
             rows={rows}
             disableColumnMenu={true}
             rowSelection={false}
-            loading={gridState.isLoading}
             paginationModel={{
                 page: gridState.page,
                 pageSize: gridState.pageSize

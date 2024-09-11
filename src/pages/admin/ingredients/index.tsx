@@ -104,7 +104,7 @@ const ListIngredients = () => {
         setGridState({ ...gridState, isLoading: true })
         try {
             const params = Object.fromEntries([...searchParams])
-            const res = await IngredientServices.getIngredientGridData({ signal, params: params })
+            const res = await IngredientServices.getIngredientGridData({ signal, params })
             if (res.status === 'success') {
                 const data = res.data.map((item, index: number) => ({
                     no: index + 1,
