@@ -62,7 +62,7 @@ const typography = {
     },
     subtitle1: {
         fontWeight: FONT_BOLD,
-        ...responsiveFontSizes({ sm: 14, md: 14, lg: 12 }),
+        ...responsiveFontSizes({ sm: 14, md: 14, lg: 14 }),
     },
     subtitle2: {
         fontWeight: FONT_REGULAR,

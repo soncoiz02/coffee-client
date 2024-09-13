@@ -1,7 +1,9 @@
+import { alpha, gridClasses, styled } from '@mui/material'
 import { DataGrid, DataGridProps, GridCallbackDetails, GridColDef, GridPaginationModel } from '@mui/x-data-grid'
-import React, { Dispatch, useEffect, useState } from 'react'
-import { getQueryString } from '../../utils/queryString'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { getQueryString } from '../../utils/queryString'
+import CustomPagination from './CustomGridPagination'
 
 
 export type GridStateType = {
@@ -12,11 +14,35 @@ export type GridStateType = {
 type PropsType = {
     columns: GridColDef[]
     rows: any
-    rowCount: number
+    rowCount?: number
 }
 
 
 type InforGridType = PropsType & DataGridProps
+
+const ODD_OPACITY = 0.2
+
+const CustomGrid = styled(DataGrid)(({ theme }) => ({
+    '& .MuiDataGrid-container--top [role=row]': {
+        background: theme.palette.grey[200],
+        '& .MuiDataGrid-columnHeaderTitle': {
+            fontWeight: 600,
+            color: theme.palette.text.secondary
+        }
+    },
+    '& .MuiDataGrid-row': {
+        '& .MuiDataGrid-cell': {
+            borderBottom: '1px dashed rgba(0,0,0,0.1)',
+            borderTop: 'none'
+        },
+    },
+    '& .MuiTablePagination-displayedRows': {
+        display: 'none'
+    },
+    '& .MuiDataGrid-filler > div': {
+        border: 'none'
+    },
+}))
 
 const InforGrid = ({ columns, rows, rowCount, ...other }: InforGridType) => {
     const [searchParams, setSearchParams] = useSearchParams()
@@ -52,7 +78,7 @@ const InforGrid = ({ columns, rows, rowCount, ...other }: InforGridType) => {
     }
 
     return (
-        <DataGrid
+        <CustomGrid
             columns={columns}
             rows={rows}
             disableColumnMenu={true}
@@ -63,9 +89,12 @@ const InforGrid = ({ columns, rows, rowCount, ...other }: InforGridType) => {
             }}
             {...other}
             paginationMode='server'
-            rowCount={rowCount}
+            rowCount={rowCount || 0}
             onPaginationModelChange={handlePaginationModelChange}
             pageSizeOptions={[10, 20, 50]}
+            slots={{
+                pagination: CustomPagination,
+            }}
         />
     )
 }

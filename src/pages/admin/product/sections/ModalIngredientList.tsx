@@ -3,6 +3,7 @@ import { CustomContentModal, CustomModal } from '../../../../theme/styled-compon
 import { ResProductIngredient } from '../../../../types/product'
 import { Button, Stack, Typography } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import InforGrid from '../../../../components/datagrid/InforGrid'
 
 type PropsType = {
     ingredientData: ResProductIngredient[]
@@ -81,7 +82,7 @@ const ModalIngredientList = ({ ingredientData, resetIngredientData }: PropsType)
         >
             <CustomContentModal gap={2} sx={{ padding: '20px' }}>
                 <Typography variant='h3'>Bảng nguyên liệu</Typography>
-                <DataGrid
+                <InforGrid
                     rows={dataSource}
                     columns={gridCols}
                     disableColumnMenu={true}

@@ -1,4 +1,4 @@
-import { Backdrop, CircularProgress, styled } from '@mui/material'
+import { Backdrop, CircularProgress, Stack, styled } from '@mui/material'
 import { useAppSelector } from '../redux/hook'
 
 export const CustomBackdrop = styled(Backdrop)(({ theme }) => ({
@@ -8,7 +8,7 @@ export const CustomBackdrop = styled(Backdrop)(({ theme }) => ({
     backdropFilter: 'blur(5px)'
 }))
 
-const Loading = () => {
+const LoadingFullScreen = () => {
     const { isShow } = useAppSelector(state => state.loading)
     return (
         <CustomBackdrop
@@ -19,4 +19,23 @@ const Loading = () => {
     )
 }
 
-export default Loading
+export const LoadingComponent = () => {
+    return (
+        <Stack
+            sx={{
+                width: '100%',
+                height: '100%',
+                color: (theme) => theme.palette.primary.main,
+                zIndex: (theme) => theme.zIndex.drawer + 1,
+                backgroundColor: 'rgba(255,255,255,0.1)',
+                backdropFilter: 'blur(5px)'
+            }}
+            alignItems='center'
+            justifyContent='center'
+        >
+            <CircularProgress color="inherit" />
+        </Stack>
+    )
+}
+
+export default LoadingFullScreen

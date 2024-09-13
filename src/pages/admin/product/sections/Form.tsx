@@ -20,7 +20,7 @@ import { BaseCategory } from "../../../../types/category";
 import { IngredientServices } from "../../../../services/ingredient/ingredientServices";
 import { BaseIngredient } from "../../../../types/ingredient";
 
-export interface DataType extends BaseProductType {
+export interface DataType extends Omit<BaseProductType, '_id'> {
   priceType: 0 | 1;
   singlePrice?: number;
 }
@@ -133,6 +133,8 @@ const Form = ({ formId, setProductName }: PropsType) => {
   const onSubmit = (values: any) => {
     const isValid = getAddtionalError(values);
     if (isValid) {
+      console.log(additionalValue);
+
       const ingredients = additionalValue.ingredient.map((ingre: any) => {
         return {
           priceType: ingre.type.code,
@@ -141,14 +143,21 @@ const Form = ({ formId, setProductName }: PropsType) => {
       })
 
       const data: any = {
-        product: values,
+        product: {
+          name: values.name,
+          img: values.img,
+          status: values.status,
+          category: values.category
+        },
         ingredients,
       }
       if (values.priceType === 1) {
         const priceBySize = additionalValue.priceBySize
-        data.priceBySize = Object.keys(priceBySize).map((key: any) => ({ size: priceBySize[key].id, price: priceBySize[key].value }))
+        data.priceBySize = Object.keys(priceBySize).map((key: any) => ({ size: key, price: priceBySize[key].value }))
       }
-
+      else {
+        data.priceBySize = [{ size: 'normal', price: values.singlePrice }]
+      }
       handleCreateProduct(data)
     }
   };

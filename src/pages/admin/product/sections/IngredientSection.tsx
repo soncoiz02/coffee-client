@@ -164,7 +164,7 @@ const IngredientSection = ({ methods, additionalValue, setAdditionalValue, isSub
       additionalVal = [
         {
           type: {
-            code: "singlePrice",
+            code: "normal",
             label: "Giá đơn",
           },
           ingredients: listIngre[0].ingredients,

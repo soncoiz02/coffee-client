@@ -5,30 +5,10 @@ import TimelineDot from "@mui/lab/TimelineDot";
 import TimelineItem, { timelineItemClasses } from "@mui/lab/TimelineItem";
 import TimelineSeparator from "@mui/lab/TimelineSeparator";
 import { Autocomplete, Checkbox, FormControl, FormControlLabel, Grid, Radio, RadioGroup, Stack, TextField, Typography } from "@mui/material";
-import { ChangeEvent, Dispatch, useEffect, useState } from "react";
+import { ChangeEvent, Dispatch, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import RHFTextField from "../../../../components/RHF/RHFTextField";
 import { BaseProductSize } from "../../../../types/product";
-import { toastServices } from "../../../../services/toast/toastServices";
-import { ProductServices } from "../../../../services/product/productServices";
-
-// const sizeOpts = [
-//     {
-//         id: "1",
-//         name: "Size S",
-//         code: "priceS",
-//     },
-//     {
-//         id: "2",
-//         name: "Size M",
-//         code: "priceM",
-//     },
-//     {
-//         id: "3",
-//         name: "Size L",
-//         code: "priceL",
-//     },
-// ];
 
 type PropsTypes = {
     methods: UseFormReturn;

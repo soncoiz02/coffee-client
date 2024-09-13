@@ -1,22 +1,21 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
-import MuiThemeProvider from './theme/MuiThemeProvider.tsx'
-import { LocalizationProvider } from '@mui/x-date-pickers';
+import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer } from 'react-toastify'
+import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import App from './App.tsx'
+import LoadingFullScreen from './components/Loading.tsx'
+import './index.css'
 import store from './redux/store.ts'
-import Loading from './components/Loading.tsx'
+import MuiThemeProvider from './theme/MuiThemeProvider.tsx'
 createRoot(document.getElementById('root')!).render(
   <Provider store={store}>
     <MuiThemeProvider>
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <App />
         <ToastContainer />
-        <Loading />
+        <LoadingFullScreen />
       </LocalizationProvider>
     </MuiThemeProvider>
   </Provider>

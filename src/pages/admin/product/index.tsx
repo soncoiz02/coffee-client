@@ -1,28 +1,28 @@
 import { faPenToSquare, faTableList, faTrashCan } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Avatar, Chip, IconButton, Stack, styled, Tooltip, Typography } from '@mui/material'
+import { Chip, IconButton, Stack, styled, Tooltip, Typography } from '@mui/material'
 import { GridColDef } from '@mui/x-data-grid'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import InforGrid from '../../../components/datagrid/InforGrid'
 import ShadowBox from '../../../components/ShadowBox'
+import ShowImage from '../../../components/ShowImage'
+import Status from '../../../components/Status'
 import { ProductServices } from '../../../services/product/productServices'
 import { toastServices } from '../../../services/toast/toastServices'
 import { ProductGridData, ResProductIngredient } from '../../../types/product'
 import { numberToPrice } from '../../../utils/formatNumber'
 import ModalIngredientList from './sections/ModalIngredientList'
 
-export const Wrapper = styled(Stack)(({ theme }) => ({
+export const Wrapper = styled(Stack)({
     padding: '24px'
-}))
+})
 
 const ProductPage = () => {
-
     const [dataSource, setDataSource] = useState<ProductGridData[]>([])
     const [rowCount, setRowCount] = useState(0)
     const [searchParams] = useSearchParams()
     const [ingredientData, setIngredientData] = useState<ResProductIngredient[]>([])
-
     const columns: GridColDef[] = [
         {
             field: 'no',
@@ -31,6 +31,7 @@ const ProductPage = () => {
             hideSortIcons: true,
             align: 'center',
             resizable: false,
+            renderCell: (params) => <Stack height='100%' justifyContent='center'>{params.value}</Stack>
         },
         {
             field: 'name',
@@ -39,30 +40,26 @@ const ProductPage = () => {
             flex: 1,
             resizable: false,
             hideSortIcons: true,
-        },
-        {
-            field: 'img',
-            width: 150,
-            headerName: 'Ảnh',
-            headerAlign: "center",
-            align: "center",
-            resizable: false,
-            hideSortIcons: true,
             renderCell: (params) => {
+                const { row, value } = params
                 return (
-                    <Stack alignItems='center' justifyItems='center' height='100%'>
-                        <Avatar sx={{
-                            width: "50px",
-                            height: "50px",
-                            mt: 1
-                        }} src={params.value} variant='rounded' />
+                    <Stack direction='row' alignItems='center' height='100%' gap={1}>
+                        <ShowImage
+                            src={row.img}
+                            sx={{
+                                width: "50px",
+                                height: "50px",
+                            }}
+                            variant='rounded'
+                        />
+                        <Typography variant='body2'>{value}</Typography>
                     </Stack>
                 )
             }
         },
         {
             field: 'price',
-            width: 200,
+            width: 180,
             headerName: 'Giá',
             headerAlign: "center",
             align: "center",
@@ -73,10 +70,28 @@ const ProductPage = () => {
                 if (row.priceType === 0)
                     return <Chip color='info' label={numberToPrice(row.singlePrice)} />
                 return (
-                    <Stack gap={0.5} py={1}>
+                    <Stack alignItems='center' gap={1} py={1}>
                         {
                             row.priceBySize.map((price: any, index: number) =>
-                                <Chip key={index} color='info' label={`${price.size.name}: ${numberToPrice(price.price)}`} />
+                                <Stack direction='row' alignItems='center' gap={1} key={index}>
+                                    <Typography
+                                        sx={{
+                                            width: '25px',
+                                            height: '25px',
+                                            borderRadius: '50%',
+                                            background: (theme) => theme.palette.text.primary,
+                                            color: 'white',
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            fontWeight: 700
+                                        }}
+                                        variant='body2'
+                                    >
+                                        {price.size.code !== 'normal' ? price.size.code.split('size')[1] : <>&#36;</>}
+                                    </Typography>
+                                    <Typography variant='body2' fontWeight={600}>{numberToPrice(price.price)}</Typography>
+                                </Stack>
                             )
                         }
                     </Stack>
@@ -91,6 +106,7 @@ const ProductPage = () => {
             align: "center",
             resizable: false,
             hideSortIcons: true,
+            renderCell: (params) => <Stack height='100%' justifyContent='center'>{params.value}</Stack>
         },
         {
             field: 'ingredients',
@@ -103,7 +119,7 @@ const ProductPage = () => {
             renderCell: (params) => {
                 return <Stack height='100%' justifyContent='center' alignItems='center'>
                     <Tooltip title="Mở bản nguyên liệu">
-                        <IconButton color="warning" onClick={() => setIngredientData(params.value)}>
+                        <IconButton onClick={() => setIngredientData(params.value)}>
                             <FontAwesomeIcon icon={faTableList} />
                         </IconButton>
                     </Tooltip>
@@ -119,7 +135,7 @@ const ProductPage = () => {
             resizable: false,
             hideSortIcons: true,
             renderCell: (params) => <Stack alignItems='center' justifyContent='center' height='100%'>
-                <Chip color={params.value ? 'success' : 'error'} label={params.value ? "Đang hoạt động" : "Đóng"} />
+                <Status title={params.value ? 'Hoạt động' : 'Đóng'} type={params.value ? 'success' : 'error'} />
             </Stack>
         },
         {
@@ -134,13 +150,13 @@ const ProductPage = () => {
                 return (
                     <Stack direction='row' alignItems='center' justifyContent='center' height='100%'>
                         <Tooltip title="Sửa thông tin">
-                            <IconButton color='info'>
-                                <FontAwesomeIcon icon={faPenToSquare} />
+                            <IconButton>
+                                <FontAwesomeIcon fontSize={18} icon={faPenToSquare} />
                             </IconButton>
                         </Tooltip>
                         <Tooltip title="Xóa sản phẩm">
                             <IconButton color='error'>
-                                <FontAwesomeIcon icon={faTrashCan} />
+                                <FontAwesomeIcon fontSize={18} icon={faTrashCan} />
                             </IconButton>
                         </Tooltip>
                     </Stack>

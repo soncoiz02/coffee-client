@@ -1,7 +1,7 @@
-import { CircularProgress, Container, Stack } from '@mui/material'
+import { Container, Stack } from '@mui/material'
 import { Suspense } from 'react'
 import { Outlet } from 'react-router-dom'
-import { CustomBackdrop } from '../../components/Loading'
+import { LoadingComponent } from '../../components/Loading'
 import Header from './Header'
 import SideBar from './SideBar'
 
@@ -16,11 +16,7 @@ const AdminLayout = () => {
                 <Container maxWidth='xl' sx={{ paddingY: '36px' }}>
                     <Suspense
                         fallback={
-                            <CustomBackdrop
-                                open={true}
-                            >
-                                <CircularProgress color="inherit" />
-                            </CustomBackdrop>
+                            <LoadingComponent />
                         }
                     >
                         <Outlet />
