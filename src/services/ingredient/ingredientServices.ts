@@ -1,4 +1,4 @@
-import { BaseIngredient, ResGetIngredient, ResGetIngredientCategories, ResIngredientGridData, ResPostIngredient } from "../../types/ingredient";
+import { BaseIngredient, ResGetIngredient, ResGetIngredientCategories, ResGetIngredientDiary, ResIngredientGridData, ResPostIngredient } from "../../types/ingredient";
 import { BaseApi } from "../baseApi";
 
 const IngredientApiIns = new BaseApi('/ingredient')
@@ -7,7 +7,8 @@ const IngredientCategoryApiIns = new BaseApi('/ingre-category')
 const URLS = {
     getList: '/get-list',
     create: '/create-ingredient',
-    getGridData: '/get-grid-data'
+    getGridData: '/get-grid-data',
+    getDiary: '/get-diary'
 }
 
 export const IngredientServices = {
@@ -22,5 +23,8 @@ export const IngredientServices = {
     },
     getIngredientCategories: (...options: any) => {
         return IngredientCategoryApiIns.get<ResGetIngredientCategories>(URLS.getList, ...options)
+    },
+    getIngredientDiary: (...options: any) => {
+        return IngredientApiIns.get<ResGetIngredientDiary>(URLS.getDiary, ...options)
     }
 }

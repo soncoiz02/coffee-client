@@ -20,8 +20,6 @@ type PropsType = {
 
 type InforGridType = PropsType & DataGridProps
 
-const ODD_OPACITY = 0.2
-
 const CustomGrid = styled(DataGrid)(({ theme }) => ({
     '& .MuiDataGrid-container--top [role=row]': {
         background: theme.palette.grey[200],
@@ -50,10 +48,6 @@ const InforGrid = ({ columns, rows, rowCount, ...other }: InforGridType) => {
         page: 0,
         pageSize: 10,
     })
-
-    useEffect(() => {
-        setQueryParams(gridState)
-    }, [])
 
     const handlePaginationModelChange = (model: GridPaginationModel, detail: GridCallbackDetails) => {
         const { page, pageSize } = model
@@ -94,6 +88,9 @@ const InforGrid = ({ columns, rows, rowCount, ...other }: InforGridType) => {
             pageSizeOptions={[10, 20, 50]}
             slots={{
                 pagination: CustomPagination,
+            }}
+            localeText={{
+                noRowsLabel: 'Không có dữ liệu'
             }}
         />
     )

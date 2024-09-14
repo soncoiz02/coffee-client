@@ -50,3 +50,23 @@ export interface ResIngredientGridData {
         total: number
     }
 }
+
+export interface BaseIngredientDiary {
+    _id: string
+    content: string
+    user: string
+    createdAt: string
+}
+
+export interface ResGetIngredientDiary {
+    status: string
+    meta: {
+        total: number
+    }
+    data: BaseIngredientDiary[]
+}
+
+export interface IngredienDiarytDataSource extends BaseIngredientDiary {
+    id: string
+    no: number
+}

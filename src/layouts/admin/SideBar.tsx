@@ -122,7 +122,7 @@ const SIDEBAR_ITEM: SidebarNavTypes[] = [
             {
                 title: 'Danh sách nguyên liệu',
                 path: '/admin/ingredient',
-                activePath: ['/admin/ingredient', "/admin/ingredient/grid"],
+                activePath: ['/admin/ingredient', "/admin/ingredient/grid", "/admin/ingredient/diary"],
                 icon: faBowlRice,
                 children: [
                     {
@@ -134,6 +134,11 @@ const SIDEBAR_ITEM: SidebarNavTypes[] = [
                         title: "Tạo nguyên liệu",
                         path: "/admin/ingredient/grid",
                         activePath: ["/admin/ingredient/grid"]
+                    },
+                    {
+                        title: "Nhật ký",
+                        path: "/admin/ingredient/diary",
+                        activePath: ["/admin/ingredient/diary"]
                     }
                 ]
             }

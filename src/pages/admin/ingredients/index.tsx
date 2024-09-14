@@ -1,18 +1,20 @@
-import React, { useEffect, useState } from "react";
-import ShadowBox from "../../../components/ShadowBox";
-import { Button, Chip, IconButton, Popover, Stack, styled, Tooltip, Typography } from "@mui/material";
-import { DataGrid, GridCallbackDetails, GridCellParams, GridColDef, GridPaginationModel } from "@mui/x-data-grid";
+import { faCircleMinus, faCirclePlus, faCog, faEllipsis, faPlusCircle, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleMinus, faCirclePlus, faCog, faEllipsis, faTrashCan } from "@fortawesome/free-solid-svg-icons";
-import { Wrapper } from "../product";
-import { IngredientDataSource } from "../../../types/ingredient";
-import { toastServices } from "../../../services/toast/toastServices";
-import { useLocation, useSearchParams } from "react-router-dom";
+import { Button, Chip, IconButton, Popover, Stack, Tooltip, Typography, styled } from "@mui/material";
+import { DataGrid, GridCallbackDetails, GridCellParams, GridColDef, GridPaginationModel } from "@mui/x-data-grid";
+import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import ShadowBox from "../../../components/ShadowBox";
+import Status from "../../../components/Status";
+import { setUpdateQuantity } from "../../../redux/feature/ingredientSlice";
+import { useAppDispatch } from "../../../redux/hook";
 import { IngredientServices } from "../../../services/ingredient/ingredientServices";
-import queryString from "query-string";
-import { getQueryString } from "../../../utils/queryString";
+import { toastServices } from "../../../services/toast/toastServices";
+import { IngredientDataSource } from "../../../types/ingredient";
 import { convertNumberWithCommas } from "../../../utils/convertNumber";
-import { CONSTANTS } from "../../../constants";
+import { getQueryString } from "../../../utils/queryString";
+import { Wrapper } from "../product";
+import ModalUpdateQuantity from "./sections/modals/ModalUpdateQuantity";
 
 type GridStateType = {
   isLoading: boolean;
@@ -74,7 +76,7 @@ const ListIngredients = () => {
       width: 100,
       resizable: false,
       hideSortIcons: true,
-      renderCell: (params) => <Chip color="warning" label={params.value} />,
+      renderCell: (params) => <Chip label={params.value} />,
     },
     {
       field: "category",
@@ -91,7 +93,10 @@ const ListIngredients = () => {
       hideSortIcons: true,
       headerAlign: "center",
       align: "center",
-      renderCell: (params) => <Chip color={params.value ? "success" : "error"} label={params.value ? "Hoạt động" : "Dừng hoạt động"} />,
+      renderCell: (params) =>
+        <Stack height='100%' justifyContent='center'>
+          <Status title={params.value ? "Hoạt động" : "Đóng"} type={params.value ? 'success' : 'error'} />
+        </Stack>,
     },
     {
       field: "action",
@@ -103,9 +108,37 @@ const ListIngredients = () => {
       align: "center",
       renderCell: (params: GridCellParams) => {
         const { id } = params;
+        const handleUpdateQuantity = (type: string) => {
+          handleClose()
+          dispatch(setUpdateQuantity({
+            id,
+            type
+          }))
+        }
+
+        const listActions = [
+          {
+            title: 'Chỉnh sửa',
+            icon: faCog,
+            color: 'info'
+          },
+          {
+            title: 'Thêm khối lượng',
+            icon: faCirclePlus,
+            action: () => handleUpdateQuantity('add'),
+            color: 'success'
+          },
+          {
+            title: 'Bớt khối lượng',
+            icon: faCircleMinus,
+            action: () => handleUpdateQuantity('remove'),
+            color: 'error'
+          }
+        ]
+
         return (
           <>
-            <Tooltip title="Xóa dòng">
+            <Tooltip title="Hành động">
               <IconButton color="info" onClick={handleClick}>
                 <FontAwesomeIcon icon={faEllipsis} />
               </IconButton>
@@ -132,22 +165,14 @@ const ListIngredients = () => {
               }}
             >
               <Stack gap={0.5}>
-                <ActionButton color="info">
-                  <FontAwesomeIcon icon={faCog} />
-                  <Typography variant="h5">Chỉnh sửa</Typography>
-                </ActionButton>
-                <ActionButton>
-                  <FontAwesomeIcon icon={faCirclePlus} />
-                  <Typography variant="h5">Thêm khối lượng</Typography>
-                </ActionButton>
-                <ActionButton color="error">
-                  <FontAwesomeIcon icon={faCircleMinus} />
-                  <Typography variant="h5">Bớt khối lượng</Typography>
-                </ActionButton>
-                <ActionButton color="error">
-                  <FontAwesomeIcon icon={faTrashCan} />
-                  <Typography variant="h5">Xóa</Typography>
-                </ActionButton>
+                {
+                  listActions.map((item: any, index: number) => (
+                    <ActionButton color={item.color} key={index} onClick={item.action}>
+                      <FontAwesomeIcon icon={item.icon} />
+                      <Typography variant="subtitle1" fontWeight={500}>{item.title}</Typography>
+                    </ActionButton>
+                  ))
+                }
               </Stack>
             </Popover>
           </>
@@ -164,6 +189,7 @@ const ListIngredients = () => {
   });
   const [rowCount, setRowCount] = useState<number>(0);
   const [searchParams, setSearchParams] = useSearchParams();
+  const dispatch = useAppDispatch()
 
   const handleGetListIngredient = async (signal: any) => {
     setGridState({ ...gridState, isLoading: true });
@@ -245,6 +271,7 @@ const ListIngredients = () => {
           autoHeight={true}
         />
       </Wrapper>
+      <ModalUpdateQuantity />
     </ShadowBox>
   );
 };

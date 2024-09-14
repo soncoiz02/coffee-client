@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
+import IngredientDiary from "../pages/admin/ingredients/sections/diary/IngredientDiary";
 
 const ProductPage = lazy(() => import("../pages/admin/product"))
 const ProductForm = lazy(() => import("../pages/admin/product/ProductForm"))
@@ -48,6 +49,10 @@ const Routers = () => {
             {
               path: 'grid',
               element: <IngredientGrid />
+            },
+            {
+              path: 'diary',
+              element: <IngredientDiary />
             }
           ]
         }

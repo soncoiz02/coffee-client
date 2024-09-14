@@ -8,7 +8,7 @@ type PropsType = {
     listErrors: any
 }
 
-const CustomContentModal = styled(Stack)(({ theme }) => ({
+export const CustomContentModal = styled(Stack)(({ theme }) => ({
     position: 'absolute' as 'absolute',
     top: '50%',
     left: '50%',
@@ -20,13 +20,13 @@ const CustomContentModal = styled(Stack)(({ theme }) => ({
     border: 'none'
 }))
 
-const ModalTitle = styled(Stack)(({ theme }) => ({
+export const ModalTitle = styled(Stack)(({ theme }) => ({
     width: '100%',
     padding: '10px 15px',
     borderBottom: `1px solid ${theme.palette.grey[300]}`
 }))
 
-const ModalContent = styled(Stack)(({ theme }) => ({
+export const ModalContent = styled(Stack)(({ theme }) => ({
     padding: '10px 15px'
 }))
 
