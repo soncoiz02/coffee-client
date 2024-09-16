@@ -23,8 +23,6 @@ const cols: GridColDef[] = [
     {
         field: 'user',
         headerName: 'Người thực hiện',
-        align: 'center',
-        headerAlign: 'center',
         width: 150,
         resizable: false,
         hideSortIcons: true,
@@ -32,8 +30,6 @@ const cols: GridColDef[] = [
     {
         field: 'content',
         headerName: 'Nội dung',
-        align: 'center',
-        headerAlign: 'center',
         flex: 1,
         resizable: false,
         hideSortIcons: true,

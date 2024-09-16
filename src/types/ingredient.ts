@@ -70,3 +70,9 @@ export interface IngredienDiarytDataSource extends BaseIngredientDiary {
     id: string
     no: number
 }
+
+export interface UpdateQuantityData {
+    currentQuantity: number
+    additionalQuantity: number
+    type: string
+}

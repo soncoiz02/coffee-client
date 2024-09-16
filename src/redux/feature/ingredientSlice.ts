@@ -1,10 +1,26 @@
 import { createSlice } from "@reduxjs/toolkit"
+import { deepCopy } from "../../utils/deepCopy"
 
 const initialState = {
     updateQuantity: {
         id: '',
-        type: ''
-    }
+        type: '',
+        unit: '',
+        quantity: 0
+    },
+    gridDataSource: [
+        {
+            no: 0,
+            id: "",
+            category: "",
+            name: "",
+            unit: "",
+            quantity: 0,
+            status: true,
+            isEdit: false,
+            code: "",
+        }
+    ]
 }
 
 const ingredientSlice = createSlice({
@@ -13,10 +29,23 @@ const ingredientSlice = createSlice({
     reducers: {
         setUpdateQuantity: (state, action) => {
             state.updateQuantity = { ...action.payload }
+        },
+        setGridDataSource: (state, action) => {
+            state.gridDataSource = action.payload
+        },
+        updateGridQuantity: (state, action) => {
+            const { id, quantity } = action.payload
+            const currentGridDataSource = deepCopy(state.gridDataSource)
+            state.gridDataSource = currentGridDataSource.map((item: any) => ({
+                ...item,
+                ...(item.id === id && {
+                    quantity
+                })
+            }))
         }
     }
 })
 
-export const { setUpdateQuantity } = ingredientSlice.actions
+export const { setUpdateQuantity, setGridDataSource, updateGridQuantity } = ingredientSlice.actions
 
 export default ingredientSlice.reducer

@@ -6,8 +6,8 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import ShadowBox from "../../../components/ShadowBox";
 import Status from "../../../components/Status";
-import { setUpdateQuantity } from "../../../redux/feature/ingredientSlice";
-import { useAppDispatch } from "../../../redux/hook";
+import { setGridDataSource, setUpdateQuantity } from "../../../redux/feature/ingredientSlice";
+import { useAppDispatch, useAppSelector } from "../../../redux/hook";
 import { IngredientServices } from "../../../services/ingredient/ingredientServices";
 import { toastServices } from "../../../services/toast/toastServices";
 import { IngredientDataSource } from "../../../types/ingredient";
@@ -32,17 +32,6 @@ const ActionButton = styled(Button)(({ theme }) => ({
 }));
 
 const ListIngredients = () => {
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const open = Boolean(anchorEl);
   const columns: GridColDef[] = [
     {
       field: "no",
@@ -107,12 +96,26 @@ const ListIngredients = () => {
       headerAlign: "center",
       align: "center",
       renderCell: (params: GridCellParams) => {
-        const { id } = params;
+        const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+
+        const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+          setAnchorEl(event.currentTarget);
+        };
+
+        const handleClose = () => {
+          setAnchorEl(null);
+        };
+
+        const open = Boolean(anchorEl);
+
+        const { id, row } = params;
         const handleUpdateQuantity = (type: string) => {
           handleClose()
           dispatch(setUpdateQuantity({
             id,
-            type
+            type,
+            unit: row.unit,
+            quantity: row.quantity
           }))
         }
 
@@ -125,14 +128,15 @@ const ListIngredients = () => {
           {
             title: 'Thêm khối lượng',
             icon: faCirclePlus,
-            action: () => handleUpdateQuantity('add'),
+            action: () => handleUpdateQuantity('add-quantity'),
             color: 'success'
           },
           {
             title: 'Bớt khối lượng',
             icon: faCircleMinus,
-            action: () => handleUpdateQuantity('remove'),
-            color: 'error'
+            action: () => handleUpdateQuantity('remove-quantity'),
+            color: 'error',
+            disabled: row.quantity === 0
           }
         ]
 
@@ -167,7 +171,7 @@ const ListIngredients = () => {
               <Stack gap={0.5}>
                 {
                   listActions.map((item: any, index: number) => (
-                    <ActionButton color={item.color} key={index} onClick={item.action}>
+                    <ActionButton disabled={item.disabled || false} color={item.color} key={index} onClick={item.action}>
                       <FontAwesomeIcon icon={item.icon} />
                       <Typography variant="subtitle1" fontWeight={500}>{item.title}</Typography>
                     </ActionButton>
@@ -181,7 +185,8 @@ const ListIngredients = () => {
     },
   ];
 
-  const [dataSource, setDataSource] = useState<IngredientDataSource[]>([]);
+
+  const { gridDataSource } = useAppSelector(state => state.ingredient)
   const [gridState, setGridState] = useState<GridStateType>({
     isLoading: false,
     page: 0,
@@ -208,7 +213,7 @@ const ListIngredients = () => {
           isEdit: false,
           code: item.code,
         }));
-        setDataSource(data);
+        dispatch(setGridDataSource(data))
         setRowCount(res.meta.total);
       }
     } catch (error: any) {
@@ -238,8 +243,6 @@ const ListIngredients = () => {
 
   const handlePaginationModelChange = (model: GridPaginationModel, detail: GridCallbackDetails) => {
     const { page, pageSize } = model;
-    console.log(model);
-
     const newGridState = {
       ...gridState,
       page,
@@ -256,7 +259,7 @@ const ListIngredients = () => {
         <Typography variant="h2">Danh sách nguyên liệu</Typography>
         <DataGrid
           columns={columns}
-          rows={dataSource}
+          rows={gridDataSource}
           disableColumnMenu={true}
           rowSelection={false}
           loading={gridState.isLoading}

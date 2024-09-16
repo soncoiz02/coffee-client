@@ -36,7 +36,6 @@ const ModalIngredientList = ({ ingredientData, resetIngredientData }: PropsType)
             field: val.ingredient.code,
             headerName: val.ingredient.name,
             width: 150,
-            editable: true,
             hideSortIcons: true,
             resizable: false,
             type: "number",
@@ -89,7 +88,6 @@ const ModalIngredientList = ({ ingredientData, resetIngredientData }: PropsType)
                     rowSelection={false}
                     hideFooter={true}
                 />
-                <Button variant='contained'>Lưu</Button>
             </CustomContentModal>
         </CustomModal>
     )
