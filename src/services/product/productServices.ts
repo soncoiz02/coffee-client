@@ -24,7 +24,7 @@ export const ProductServices = {
     getListSize: (...options: any) => {
         return ProductApiIns.get<ResGetListSize>(URLS.getSize, ...options)
     },
-    getGridData: (...options: any) => {
-        return ProductApiIns.get<ResGetGridData>(URLS.getGridData, ...options)
+    getGridData: (url: string, ...options: any) => {
+        return ProductApiIns.get<ResGetGridData>(url, ...options)
     }
 }

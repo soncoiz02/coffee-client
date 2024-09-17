@@ -16,8 +16,8 @@ export const IngredientServices = {
     getListIngredients: (...options: any) => {
         return IngredientApiIns.get<ResGetIngredient>(URLS.getList, ...options)
     },
-    getIngredientGridData: (...options: any) => {
-        return IngredientApiIns.get<ResIngredientGridData>(URLS.getGridData, ...options)
+    getIngredientGridData: (url: string, ...options: any) => {
+        return IngredientApiIns.get<ResIngredientGridData>(url, ...options)
     },
     createIngredients: (data: Omit<BaseIngredient, "_id">[], ...options: any) => {
         return IngredientApiIns.post<ResPostIngredient>(URLS.create, data, ...options)
@@ -25,8 +25,8 @@ export const IngredientServices = {
     getIngredientCategories: (...options: any) => {
         return IngredientCategoryApiIns.get<ResGetIngredientCategories>(URLS.getList, ...options)
     },
-    getIngredientDiary: (...options: any) => {
-        return IngredientApiIns.get<ResGetIngredientDiary>(URLS.getDiary, ...options)
+    getIngredientDiary: (url: string, ...options: any) => {
+        return IngredientApiIns.get<ResGetIngredientDiary>(url, ...options)
     },
     updateIngredientQuantity: (id: string, data: UpdateQuantityData, ...options: any) => {
         return IngredientApiIns.put<ResPostIngredient>(`${URLS.addQuantity}/${id}`, data, ...options)

@@ -15,7 +15,7 @@ import { CustomContentModal } from '../../../../../theme/styled-components/modal
 import { UpdateQuantityData } from '../../../../../types/ingredient';
 import { ModalContent, ModalTitle } from '../grid/ModalAlertValidate';
 
-const ModalUpdateQuantity = () => {
+const ModalUpdateQuantity = ({ mutateData }: any) => {
     const { updateQuantity } = useAppSelector(state => state.ingredient)
     const dispatch = useAppDispatch()
     const theme = useTheme()
@@ -57,11 +57,7 @@ const ModalUpdateQuantity = () => {
             const res = await IngredientServices.updateIngredientQuantity(updateQuantity.id, data)
             if (res.status === 'success') {
                 toastServices.success(res.message)
-                const newQuantity = data.type === 'add-quantity' ? data.currentQuantity + data.additionalQuantity : data.currentQuantity - data.additionalQuantity
-                dispatch(updateGridQuantity({
-                    id: updateQuantity.id,
-                    quantity: newQuantity
-                }))
+                mutateData()
                 handleClose()
             }
         } catch (error: any) {
@@ -93,11 +89,11 @@ const ModalUpdateQuantity = () => {
                     </Typography>
                 </ModalTitle>
                 <ModalContent sx={{
-                    pt: 4,
-                    pb: 2
+                    py: 2
                 }}>
                     <RHFProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
                         <Stack gap={2}>
+                            <Typography variant='h4'>{updateQuantity.name}</Typography>
                             <RHFTextField type='number' name='quantity' label={`Khối lượng (${updateQuantity.unit})`} />
                             <Stack direction='row' alignItems='center' justifyContent='space-between' gap={2}>
                                 <Button

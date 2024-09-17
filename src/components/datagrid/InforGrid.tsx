@@ -1,4 +1,4 @@
-import { alpha, gridClasses, styled } from '@mui/material'
+import { styled } from '@mui/material'
 import { DataGrid, DataGridProps, GridCallbackDetails, GridColDef, GridPaginationModel } from '@mui/x-data-grid'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -44,22 +44,20 @@ const CustomGrid = styled(DataGrid)(({ theme }) => ({
 
 const InforGrid = ({ columns, rows, rowCount, ...other }: InforGridType) => {
     const [searchParams, setSearchParams] = useSearchParams()
-    const [gridState, setGridState] = useState<GridStateType>({
-        page: 0,
-        pageSize: 10,
-    })
 
     const handlePaginationModelChange = (model: GridPaginationModel, detail: GridCallbackDetails) => {
-        const { page, pageSize } = model
+        setQueryParams(model)
+    }
 
-        const newGridState = {
-            ...gridState,
+    const handleGetPaginationModel = () => {
+        const params = Object.fromEntries([...searchParams])
+        const page = +params.page - 1 || 0
+        const pageSize = +params.limit || 10
+
+        return {
             page,
             pageSize
         }
-
-        setGridState(newGridState)
-        setQueryParams(newGridState)
     }
 
     const setQueryParams = (gridState: GridStateType) => {
@@ -77,10 +75,7 @@ const InforGrid = ({ columns, rows, rowCount, ...other }: InforGridType) => {
             rows={rows}
             disableColumnMenu={true}
             rowSelection={false}
-            paginationModel={{
-                page: gridState.page,
-                pageSize: gridState.pageSize
-            }}
+            paginationModel={handleGetPaginationModel()}
             {...other}
             paginationMode='server'
             rowCount={rowCount || 0}

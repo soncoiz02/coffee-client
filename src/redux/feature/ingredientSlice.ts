@@ -6,7 +6,8 @@ const initialState = {
         id: '',
         type: '',
         unit: '',
-        quantity: 0
+        quantity: 0,
+        name: ''
     },
     gridDataSource: [
         {

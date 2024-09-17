@@ -2,15 +2,15 @@ import { faPenToSquare, faTableList, faTrashCan } from '@fortawesome/free-solid-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Chip, IconButton, Stack, styled, Tooltip, Typography } from '@mui/material'
 import { GridColDef } from '@mui/x-data-grid'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import InforGrid from '../../../components/datagrid/InforGrid'
+import { LoadingComponent } from '../../../components/Loading'
 import ShadowBox from '../../../components/ShadowBox'
 import ShowImage from '../../../components/ShowImage'
 import Status from '../../../components/Status'
-import { ProductServices } from '../../../services/product/productServices'
-import { toastServices } from '../../../services/toast/toastServices'
-import { ProductGridData, ResProductIngredient } from '../../../types/product'
+import useProductGridData from '../../../hooks/swr/useProductGridData'
+import { ResProductIngredient } from '../../../types/product'
 import { numberToPrice } from '../../../utils/formatNumber'
 import ModalIngredientList from './sections/ModalIngredientList'
 
@@ -19,8 +19,6 @@ export const Wrapper = styled(Stack)({
 })
 
 const ProductPage = () => {
-    const [dataSource, setDataSource] = useState<ProductGridData[]>([])
-    const [rowCount, setRowCount] = useState(0)
     const [searchParams] = useSearchParams()
     const [ingredientData, setIngredientData] = useState<ResProductIngredient[]>([])
     const columns: GridColDef[] = [
@@ -164,32 +162,12 @@ const ProductPage = () => {
             }
         },
     ]
+    const params = Object.fromEntries([...searchParams])
 
-    const handleGetGridData = async (signal: any) => {
-        try {
-            const params = Object.fromEntries([...searchParams])
-            const res = await ProductServices.getGridData({ signal, params })
-            const { data, meta, status } = res
-            if (status === 'success') {
-                const mappedData: ProductGridData[] = data.map((item, index) => ({ ...item, id: item._id, category: item.category.name, no: index + 1 }))
-                setDataSource(mappedData)
-                setRowCount(meta.total)
-            }
-        } catch (error: any) {
-            toastServices.error(error.message)
-        }
-    }
+    const { data, error, isLoading } = useProductGridData({ params })
 
-    useEffect(() => {
-        const abortControler = new AbortController()
-        const { signal } = abortControler
-        handleGetGridData(signal)
-
-        return () => {
-            abortControler.abort()
-        }
-    }, [searchParams])
-
+    if (error) return "An error has occurred.";
+    if (isLoading) return <LoadingComponent />;
     const resetIngredientData = () => setIngredientData([])
 
     return (
@@ -198,8 +176,8 @@ const ProductPage = () => {
                 <Typography variant='h2'>Danh sách sản phẩm</Typography>
                 <InforGrid
                     columns={columns}
-                    rows={dataSource}
-                    rowCount={rowCount}
+                    rows={data.dataSource}
+                    rowCount={data.rowCount}
                     sx={{
                         minHeight: '200px'
                     }}

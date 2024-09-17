@@ -15,6 +15,9 @@ import { convertNumberWithCommas } from "../../../utils/convertNumber";
 import { getQueryString } from "../../../utils/queryString";
 import { Wrapper } from "../product";
 import ModalUpdateQuantity from "./sections/modals/ModalUpdateQuantity";
+import useIngredientGridData from "../../../hooks/swr/useIngredientGridData";
+import { LoadingComponent } from "../../../components/Loading";
+import InforGrid from "../../../components/datagrid/InforGrid";
 
 type GridStateType = {
   isLoading: boolean;
@@ -115,7 +118,8 @@ const ListIngredients = () => {
             id,
             type,
             unit: row.unit,
-            quantity: row.quantity
+            quantity: row.quantity,
+            name: row.name
           }))
         }
 
@@ -142,7 +146,7 @@ const ListIngredients = () => {
 
         return (
           <>
-            <Tooltip title="Hành động">
+            <Tooltip title="Hành động" placement="top">
               <IconButton color="info" onClick={handleClick}>
                 <FontAwesomeIcon icon={faEllipsis} />
               </IconButton>
@@ -184,97 +188,32 @@ const ListIngredients = () => {
       },
     },
   ];
-
-
-  const { gridDataSource } = useAppSelector(state => state.ingredient)
-  const [gridState, setGridState] = useState<GridStateType>({
-    isLoading: false,
-    page: 0,
-    pageSize: 10,
-  });
-  const [rowCount, setRowCount] = useState<number>(0);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const dispatch = useAppDispatch()
+  const params = Object.fromEntries([...searchParams]);
+  const { data, isLoading, error, mutate } = useIngredientGridData({ params })
 
-  const handleGetListIngredient = async (signal: any) => {
-    setGridState({ ...gridState, isLoading: true });
-    try {
-      const params = Object.fromEntries([...searchParams]);
-      const res = await IngredientServices.getIngredientGridData({ signal, params: params });
-      if (res.status === "success") {
-        const data = res.data.map((item, index: number) => ({
-          no: index + 1,
-          id: item._id,
-          category: item.category.name,
-          name: item.name,
-          unit: item.unit,
-          quantity: item.quantity,
-          status: item.status,
-          isEdit: false,
-          code: item.code,
-        }));
-        dispatch(setGridDataSource(data))
-        setRowCount(res.meta.total);
-      }
-    } catch (error: any) {
-      toastServices.error(error.message);
-    } finally {
-      setGridState({ ...gridState, isLoading: false });
-    }
-  };
+  if (error) return "An error has occurred.";
+  if (isLoading) return <LoadingComponent />;
 
-  useEffect(() => {
-    const abortController = new AbortController();
-    const signal = abortController.signal;
-    handleGetListIngredient(signal);
-    return () => {
-      abortController.abort();
-    };
-  }, [searchParams]);
-
-  const setQueryParams = (gridState: GridStateType) => {
-    const { page, pageSize } = gridState;
-    const params = getQueryString({
-      page: page + 1,
-      limit: pageSize,
-    });
-    setSearchParams(params);
-  };
-
-  const handlePaginationModelChange = (model: GridPaginationModel, detail: GridCallbackDetails) => {
-    const { page, pageSize } = model;
-    const newGridState = {
-      ...gridState,
-      page,
-      pageSize,
-    };
-
-    setGridState(newGridState);
-    setQueryParams(newGridState);
-  };
+  const mutateData = () => {
+    mutate()
+  }
 
   return (
     <ShadowBox sx={{ borderRadius: "20px" }}>
       <Wrapper gap={2}>
         <Typography variant="h2">Danh sách nguyên liệu</Typography>
-        <DataGrid
+        <InforGrid
           columns={columns}
-          rows={gridDataSource}
-          disableColumnMenu={true}
-          rowSelection={false}
-          loading={gridState.isLoading}
-          paginationModel={{
-            page: gridState.page,
-            pageSize: gridState.pageSize,
-          }}
-          paginationMode="server"
-          rowCount={rowCount}
-          onPaginationModelChange={handlePaginationModelChange}
-          pageSizeOptions={[10, 20, 50]}
+          rows={data.dataSource}
+          rowCount={data.rowCount}
           autoHeight={true}
         />
       </Wrapper>
-      <ModalUpdateQuantity />
+      <ModalUpdateQuantity
+        mutateData={mutateData}
+      />
     </ShadowBox>
   );
 };
