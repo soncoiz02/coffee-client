@@ -13,7 +13,7 @@ import { IngredientServices } from '../../../../../services/ingredient/ingredien
 import { toastServices } from '../../../../../services/toast/toastServices';
 import { CustomContentModal } from '../../../../../theme/styled-components/modal';
 import { UpdateQuantityData } from '../../../../../types/ingredient';
-import { ModalContent, ModalTitle } from '../grid/ModalAlertValidate';
+import { ModalContent, ModalTitle } from './ModalAlertValidate';
 
 const ModalUpdateQuantity = ({ mutateData }: any) => {
     const { updateQuantity } = useAppSelector(state => state.ingredient)

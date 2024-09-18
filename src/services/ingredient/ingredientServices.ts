@@ -22,8 +22,8 @@ export const IngredientServices = {
     createIngredients: (data: Omit<BaseIngredient, "_id">[], ...options: any) => {
         return IngredientApiIns.post<ResPostIngredient>(URLS.create, data, ...options)
     },
-    getIngredientCategories: (...options: any) => {
-        return IngredientCategoryApiIns.get<ResGetIngredientCategories>(URLS.getList, ...options)
+    getIngredientCategories: (url: string, ...options: any) => {
+        return IngredientCategoryApiIns.get<ResGetIngredientCategories>(url, ...options)
     },
     getIngredientDiary: (url: string, ...options: any) => {
         return IngredientApiIns.get<ResGetIngredientDiary>(url, ...options)

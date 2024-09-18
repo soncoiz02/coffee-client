@@ -1,29 +1,23 @@
-import { faCircleMinus, faCirclePlus, faCog, faEllipsis, faPlusCircle, faTrashCan } from "@fortawesome/free-solid-svg-icons";
+import { faCircleMinus, faCirclePlus, faCog, faEllipsis } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, Chip, IconButton, Popover, Stack, Tooltip, Typography, styled } from "@mui/material";
-import { DataGrid, GridCallbackDetails, GridCellParams, GridColDef, GridPaginationModel } from "@mui/x-data-grid";
+import { GridCellParams, GridColDef } from "@mui/x-data-grid";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { LoadingComponent } from "../../../components/Loading";
 import ShadowBox from "../../../components/ShadowBox";
 import Status from "../../../components/Status";
-import { setGridDataSource, setUpdateQuantity } from "../../../redux/feature/ingredientSlice";
-import { useAppDispatch, useAppSelector } from "../../../redux/hook";
-import { IngredientServices } from "../../../services/ingredient/ingredientServices";
-import { toastServices } from "../../../services/toast/toastServices";
-import { IngredientDataSource } from "../../../types/ingredient";
+import InforGrid from "../../../components/datagrid/InforGrid";
+import useIngredientGridData from "../../../hooks/swr/useIngredientGridData";
+import { setUpdateQuantity } from "../../../redux/feature/ingredientSlice";
+import { useAppDispatch } from "../../../redux/hook";
 import { convertNumberWithCommas } from "../../../utils/convertNumber";
-import { getQueryString } from "../../../utils/queryString";
 import { Wrapper } from "../product";
 import ModalUpdateQuantity from "./sections/modals/ModalUpdateQuantity";
-import useIngredientGridData from "../../../hooks/swr/useIngredientGridData";
-import { LoadingComponent } from "../../../components/Loading";
-import InforGrid from "../../../components/datagrid/InforGrid";
-
-type GridStateType = {
-  isLoading: boolean;
-  page: number;
-  pageSize: number;
-};
+import * as yup from 'yup'
+import FilterForm, { FilterField } from "./sections/filter-form/FilterForm";
+import useIngredientCategory from "../../../hooks/swr/useIngredientCategory";
+import { deepCopy } from "../../../utils/deepCopy";
 
 const ActionButton = styled(Button)(({ theme }) => ({
   display: "flex",
@@ -33,6 +27,61 @@ const ActionButton = styled(Button)(({ theme }) => ({
   minWidth: "150px",
   padding: "10px",
 }));
+
+const filterFields: FilterField = {
+  defaultValues: {
+    name: "",
+    unit: "",
+    category: "",
+    status: true
+  },
+  validateSchema: yup.object().shape({
+    name: yup.string(),
+    unit: yup.string(),
+    category: yup.string(),
+    status: yup.boolean()
+  }),
+  fields: [
+    {
+      fieldName: 'name',
+      gridCol: {
+        xs: 6,
+        md: 4
+      },
+      label: "Tên nguyên liệu",
+      type: "text"
+    },
+    {
+      fieldName: 'category',
+      gridCol: {
+        xs: 6,
+        md: 4
+      },
+      label: "Danh mục nguyên liệu",
+      type: "select",
+      valueOptions: []
+    },
+    {
+      fieldName: 'unit',
+      gridCol: {
+        xs: 6,
+        md: 2
+      },
+      label: "Đơn vị",
+      type: "text",
+    },
+    {
+      fieldName: 'status',
+      gridCol: {
+        xs: 6,
+        md: 2
+      },
+      label: "Trạng thái",
+      type: "select",
+      valueOptions: []
+    }
+  ]
+}
 
 const ListIngredients = () => {
   const columns: GridColDef[] = [
@@ -191,7 +240,10 @@ const ListIngredients = () => {
   const [searchParams] = useSearchParams();
   const dispatch = useAppDispatch()
   const params = Object.fromEntries([...searchParams]);
+  const [filterFieldData, setFilterFieldData] = useState<FilterField>(filterFields)
+
   const { data, isLoading, error, mutate } = useIngredientGridData({ params })
+  const ingredientCategory = useIngredientCategory()
 
   if (error) return "An error has occurred.";
   if (isLoading) return <LoadingComponent />;
@@ -200,10 +252,29 @@ const ListIngredients = () => {
     mutate()
   }
 
+  // useEffect(() => {
+  //   if (!ingredientCategory.error) {
+  //     const updateData = deepCopy<FilterField>(filterFieldData).fields.map(item => {
+  //       return {
+  //         ...(item.fieldName === 'category' && {
+  //           valueOptions: ingredientCategory.data.valueOptions
+  //         }),
+  //         ...item
+  //       }
+  //     })
+
+  //     setFilterFieldData({
+  //       ...filterFieldData,
+  //       fields: updateData
+  //     })
+  //   }
+  // }, [])
+
   return (
     <ShadowBox sx={{ borderRadius: "20px" }}>
       <Wrapper gap={2}>
         <Typography variant="h2">Danh sách nguyên liệu</Typography>
+        <FilterForm filterFields={filterFields} />
         <InforGrid
           columns={columns}
           rows={data.dataSource}

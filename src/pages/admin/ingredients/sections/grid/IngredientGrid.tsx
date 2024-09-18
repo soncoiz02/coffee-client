@@ -1,19 +1,19 @@
 import { faFileArrowDown, faFileExcel, faPlusCircle, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, Checkbox, IconButton, Stack, Tooltip, Typography, useTheme } from "@mui/material";
-import { DataGrid, GridCellParams, GridColDef, MuiEvent } from "@mui/x-data-grid";
+import { DataGrid, GridCellParams, GridColDef } from "@mui/x-data-grid";
 import { ChangeEvent, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ShadowBox from "../../../../../components/ShadowBox";
 import { CONSTANTS } from "../../../../../constants";
+import { hideLoading, showLoading } from "../../../../../redux/feature/loadingSlice";
+import { useAppDispatch } from "../../../../../redux/hook";
+import { IngredientServices } from "../../../../../services/ingredient/ingredientServices";
 import { toastServices } from "../../../../../services/toast/toastServices";
 import { BaseIngredient, IngredientDataSource } from "../../../../../types/ingredient";
 import { deepCopy } from "../../../../../utils/deepCopy";
 import { Wrapper } from "../../../product";
-import ModalAlertValidate from "./ModalAlertValidate";
-import { IngredientServices } from "../../../../../services/ingredient/ingredientServices";
-import { useAppDispatch } from "../../../../../redux/hook";
-import { hideLoading, showLoading } from "../../../../../redux/feature/loadingSlice";
-import { useNavigate } from "react-router-dom";
+import ModalAlertValidate from "../modals/ModalAlertValidate";
 
 const defaultIngredientValues = [
   {
@@ -198,7 +198,7 @@ const IngredientGrid = () => {
 
   const handleGetIngredientCategory = async () => {
     try {
-      const res = await IngredientServices.getIngredientCategories();
+      const res = await IngredientServices.getIngredientCategories("/get-list");
       if (res.status === "success") {
         const categoryOpts = res.data.map((item) => ({
           label: item.name,
@@ -245,9 +245,12 @@ const IngredientGrid = () => {
   };
 
   const onProcessRowUpdate = (newRow: IngredientDataSource, oldRow: IngredientDataSource) => {
-    const cloneRow = deepCopy(newRow);
+    const cloneRow = deepCopy<IngredientDataSource>(newRow);
     Object.keys(cloneRow).forEach((key) => {
-      if (typeof cloneRow[key] === "string") cloneRow[key] = cloneRow[key].trim();
+      let fieldKey = key as keyof typeof cloneRow
+      if (typeof cloneRow[fieldKey] === "string") {
+        cloneRow[fieldKey] = cloneRow[fieldKey].trim();
+      }
     });
     if (JSON.stringify(cloneRow) === JSON.stringify(oldRow)) {
       return cloneRow;
@@ -256,7 +259,7 @@ const IngredientGrid = () => {
     listValidates.forEach((item: any) => {
       const { message, field, defaultValue } = item;
       toastServices.error(message);
-      cloneRow[field] = defaultValue;
+      cloneRow[field as keyof typeof cloneRow] = defaultValue;
     });
     cloneRow.isEdit = true;
     handleRowUpdate(cloneRow);
@@ -312,12 +315,13 @@ const IngredientGrid = () => {
   const handleCreateData = async (data: IngredientDataSource[]) => {
     dispatch(showLoading());
     try {
-      const convertData: Omit<BaseIngredient, "_id">[] = deepCopy(data).map((p: IngredientDataSource) => ({
+      const convertData: Omit<BaseIngredient, "_id">[] = deepCopy<IngredientDataSource[]>(data).map((p: IngredientDataSource) => ({
         name: p.name,
         unit: p.unit,
         quantity: p.quantity,
         status: p.status,
         category: p.category,
+        code: p.code
       }));
 
       const res = await IngredientServices.createIngredients(convertData);

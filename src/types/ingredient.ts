@@ -37,6 +37,9 @@ export interface IngredientDataSource extends Omit<BaseIngredient, "_id"> {
 export interface ResGetIngredientCategories {
     status: string
     data: BaseCategory[]
+    meta: {
+        total: number
+    }
 }
 
 export interface IngredientGridData extends BaseIngredient {

@@ -74,7 +74,7 @@ const ModalAlertValidate = ({ listErrors }: PropsType) => {
                                     {
                                         error.errors.map((err: any, i: number) =>
                                             <Stack key={`${err.field}-${index}-${i}`} direction='row' alignItems='center' gap={1}>
-                                                <Typography variant='body2'>- {CONSTANTS.GRID_COL_NAME.INGREDIENT[err.field]}:</Typography>
+                                                <Typography variant='body2'>- {CONSTANTS.GRID_COL_NAME.INGREDIENT[err.field as keyof typeof CONSTANTS.GRID_COL_NAME.INGREDIENT]}:</Typography>
                                                 <Typography variant='body2' color='error'>{err.message}</Typography>
                                             </Stack>
                                         )
