@@ -1,4 +1,4 @@
-import { BaseIngredient, ResGetIngredient, ResGetIngredientCategories, ResGetIngredientDiary, ResIngredientGridData, ResPostIngredient, UpdateQuantityData } from "../../types/ingredient";
+import { BaseIngredient, ResExistByCode, ResGetIngredient, ResGetIngredientCategories, ResGetIngredientDiary, ResIngredientGridData, ResPostIngredient, UpdateQuantityData } from "../../types/ingredient";
 import { BaseApi } from "../baseApi";
 
 const IngredientApiIns = new BaseApi('/ingredient')
@@ -9,7 +9,8 @@ const URLS = {
     create: '/create-ingredient',
     getGridData: '/get-grid-data',
     getDiary: '/get-diary',
-    addQuantity: '/update-quantity'
+    addQuantity: '/update-quantity',
+    existByCode: '/exist-by-code'
 }
 
 export const IngredientServices = {
@@ -30,5 +31,8 @@ export const IngredientServices = {
     },
     updateIngredientQuantity: (id: string, data: UpdateQuantityData, ...options: any) => {
         return IngredientApiIns.put<ResPostIngredient>(`${URLS.addQuantity}/${id}`, data, ...options)
+    },
+    getByCode: (...options: any) => {
+        return IngredientApiIns.get<ResExistByCode>(`${URLS.existByCode}`, ...options)
     }
 }

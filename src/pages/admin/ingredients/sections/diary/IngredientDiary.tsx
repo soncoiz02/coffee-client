@@ -1,67 +1,55 @@
 import { Typography } from '@mui/material'
-import { GridColDef } from '@mui/x-data-grid'
-import { useSearchParams } from 'react-router-dom'
-import { LoadingComponent } from '../../../../../components/Loading'
 import ShadowBox from '../../../../../components/ShadowBox'
-import InforGrid from '../../../../../components/datagrid/InforGrid'
-import useIngredientDiary from '../../../../../hooks/swr/useIngredientDiary'
-import { formatDate } from '../../../../../types/time'
 import { Wrapper } from '../../../product'
+import DiaryInfoGrid from './DiaryInfoGrid'
+import FilterForm, { FilterField } from '../../../../../components/FilterForm'
 
-const cols: GridColDef[] = [
-    {
-        field: 'no',
-        headerName: "STT",
-        align: 'center',
-        headerAlign: 'center',
-        width: 80,
-        resizable: false,
-        hideSortIcons: true,
+import * as yup from 'yup'
+import { TextMaskCustomDate } from '../../../../../components/TextMaskCustom'
+import { isValidDate } from '../../../../../utils/time'
+
+const filterFields: FilterField = {
+    fields: [
+        {
+            fieldName: 'user',
+            label: "Người thực hiện",
+            gridCol: {
+                xs: 6,
+                md: 6
+            },
+            type: "text"
+        },
+        {
+            fieldName: 'createdAt',
+            label: "Thời gian",
+            gridCol: {
+                xs: 6,
+                md: 6
+            },
+            type: "text",
+            mask: TextMaskCustomDate
+        }
+    ],
+    defaultValues: {
+        user: "",
+        createdAt: ""
     },
-    {
-        field: 'user',
-        headerName: 'Người thực hiện',
-        width: 150,
-        resizable: false,
-        hideSortIcons: true,
-    },
-    {
-        field: 'content',
-        headerName: 'Nội dung',
-        flex: 1,
-        resizable: false,
-        hideSortIcons: true,
-    },
-    {
-        field: 'createdAt',
-        headerName: 'Thời gian',
-        align: 'center',
-        headerAlign: 'center',
-        width: 200,
-        resizable: false,
-        hideSortIcons: true,
-        valueFormatter: (value) => formatDate(value, 'HH:ss dd/MM/yyyy')
-    }
-]
+    validateSchema: yup.object().shape({
+        user: yup.string(),
+        createdAt: yup.string().test("validDate", "Sai định dạng thời gian", (value) => {
+            if (!value) return false
+            return isValidDate(value)
+        })
+    })
+}
 
 const IngredientDiary = () => {
-    const [searchParams,] = useSearchParams()
-
-    const params = Object.fromEntries([...searchParams])
-    const { data, error, isLoading } = useIngredientDiary({ params })
-
-    if (error) return "An error has occurred.";
-    if (isLoading) return <LoadingComponent />;
-
     return (
         <ShadowBox sx={{ borderRadius: "20px" }}>
             <Wrapper gap={2}>
                 <Typography variant='h2'>Nhật ký</Typography>
-                <InforGrid
-                    columns={cols}
-                    rows={data.dataSource}
-                    rowCount={data.rowCount}
-                />
+                <FilterForm filterFields={filterFields} />
+                <DiaryInfoGrid />
             </Wrapper>
         </ShadowBox>
     )

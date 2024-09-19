@@ -1,9 +1,9 @@
 import { styled } from '@mui/material'
 import { DataGrid, DataGridProps, GridCallbackDetails, GridColDef, GridPaginationModel } from '@mui/x-data-grid'
-import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { getQueryString } from '../../utils/queryString'
 import CustomPagination from './CustomGridPagination'
+import useQueryParams from '../../hooks/useQueryParams'
 
 
 export type GridStateType = {
@@ -43,14 +43,17 @@ const CustomGrid = styled(DataGrid)(({ theme }) => ({
 }))
 
 const InforGrid = ({ columns, rows, rowCount, ...other }: InforGridType) => {
-    const [searchParams, setSearchParams] = useSearchParams()
+    const { queryParams, setQueryParams } = useQueryParams()
 
     const handlePaginationModelChange = (model: GridPaginationModel, detail: GridCallbackDetails) => {
-        setQueryParams(model)
+        setQueryParams({
+            page: model.page + 1,
+            limit: model.pageSize
+        })
     }
 
     const handleGetPaginationModel = () => {
-        const params = Object.fromEntries([...searchParams])
+        const params = Object.fromEntries([...queryParams])
         const page = +params.page - 1 || 0
         const pageSize = +params.limit || 10
 
@@ -58,15 +61,6 @@ const InforGrid = ({ columns, rows, rowCount, ...other }: InforGridType) => {
             page,
             pageSize
         }
-    }
-
-    const setQueryParams = (gridState: GridStateType) => {
-        const { page, pageSize } = gridState
-        const params = getQueryString({
-            page: page + 1,
-            limit: pageSize
-        })
-        setSearchParams(params)
     }
 
     return (
@@ -80,12 +74,13 @@ const InforGrid = ({ columns, rows, rowCount, ...other }: InforGridType) => {
             paginationMode='server'
             rowCount={rowCount || 0}
             onPaginationModelChange={handlePaginationModelChange}
-            pageSizeOptions={[10, 20, 50]}
+            pageSizeOptions={[5, 10, 20, 50]}
             slots={{
                 pagination: CustomPagination,
             }}
             localeText={{
-                noRowsLabel: 'Không có dữ liệu'
+                noRowsLabel: 'Không có dữ liệu',
+                noResultsOverlayLabel: "Không tìm thấy dữ liệu"
             }}
         />
     )

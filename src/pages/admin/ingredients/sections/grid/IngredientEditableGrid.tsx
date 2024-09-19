@@ -14,6 +14,7 @@ import { BaseIngredient, IngredientDataSource } from "../../../../../types/ingre
 import { deepCopy } from "../../../../../utils/deepCopy";
 import { Wrapper } from "../../../product";
 import ModalAlertValidate from "../modals/ModalAlertValidate";
+import { convertNameToCode } from "../../../../../utils/convertNameToCode";
 
 const defaultIngredientValues = [
   {
@@ -73,7 +74,7 @@ const defaultIngredientValues = [
   },
 ];
 
-const IngredientGrid = () => {
+const IngredientEditableGrid = () => {
   const theme = useTheme();
   const [gridCols, setGridCols] = useState<GridColDef[]>([
     {
@@ -244,7 +245,7 @@ const IngredientGrid = () => {
     setDataSource(filterRow);
   };
 
-  const onProcessRowUpdate = (newRow: IngredientDataSource, oldRow: IngredientDataSource) => {
+  const onProcessRowUpdate = async (newRow: IngredientDataSource, oldRow: IngredientDataSource) => {
     const cloneRow = deepCopy<IngredientDataSource>(newRow);
     Object.keys(cloneRow).forEach((key) => {
       let fieldKey = key as keyof typeof cloneRow
@@ -255,7 +256,7 @@ const IngredientGrid = () => {
     if (JSON.stringify(cloneRow) === JSON.stringify(oldRow)) {
       return cloneRow;
     }
-    const listValidates = getValidateRowValue(cloneRow);
+    const listValidates = await getValidateRowValue(cloneRow);
     listValidates.forEach((item: any) => {
       const { message, field, defaultValue } = item;
       toastServices.error(message);
@@ -272,8 +273,23 @@ const IngredientGrid = () => {
     setDataSource(cloneDataSource);
   };
 
-  const getValidateRowValue = (rowValue: any) => {
+  const getValidateRowValue = async (rowValue: any) => {
     const listValidates: any = [];
+
+    if (rowValue.hasOwnProperty("name") && rowValue.name) {
+      const params = {
+        code: convertNameToCode(rowValue.name)
+      }
+      const existIngre = await IngredientServices.getByCode({ params })
+      if (existIngre.exist) {
+        listValidates.push({
+          field: "name",
+          defaultValue: "",
+          message: existIngre.message,
+        });
+      }
+    }
+
     Object.keys(rowValue).forEach((key: string) => {
       if (key === "quantity") {
         if (+rowValue[key] < 0) {
@@ -450,4 +466,4 @@ const IngredientGrid = () => {
   );
 };
 
-export default IngredientGrid;
+export default IngredientEditableGrid;

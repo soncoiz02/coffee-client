@@ -79,3 +79,8 @@ export interface UpdateQuantityData {
     additionalQuantity: number
     type: string
 }
+
+export interface ResExistByCode {
+    exist: boolean
+    message?: string
+}
