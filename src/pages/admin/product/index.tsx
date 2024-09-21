@@ -1,192 +1,152 @@
-import { faPenToSquare, faTableList, faTrashCan } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Chip, IconButton, Stack, styled, Tooltip, Typography } from '@mui/material'
-import { GridColDef } from '@mui/x-data-grid'
-import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import InforGrid from '../../../components/datagrid/InforGrid'
-import { LoadingComponent } from '../../../components/Loading'
+import { Stack, styled, Typography } from '@mui/material'
 import ShadowBox from '../../../components/ShadowBox'
-import ShowImage from '../../../components/ShowImage'
-import Status from '../../../components/Status'
-import useProductGridData from '../../../hooks/swr/useProductGridData'
-import { ResProductIngredient } from '../../../types/product'
-import { numberToPrice } from '../../../utils/formatNumber'
-import ModalIngredientList from './sections/ModalIngredientList'
+import ProductGridInfo from './sections/ProductGridInfo'
+import FilterForm, { FilterField } from '../../../components/FilterForm'
+import * as yup from 'yup'
+import { useEffect, useState } from 'react'
+import useProductFilterValueOptions from '../../../hooks/swr/useProductFilterValueOptions'
 
 export const Wrapper = styled(Stack)({
     padding: '24px'
 })
 
-const ProductPage = () => {
-    const [searchParams] = useSearchParams()
-    const [ingredientData, setIngredientData] = useState<ResProductIngredient[]>([])
-    const columns: GridColDef[] = [
+const filterFields: FilterField = {
+    fields: [
         {
-            field: 'no',
-            width: 50,
-            headerName: 'STT',
-            hideSortIcons: true,
-            align: 'center',
-            resizable: false,
-            renderCell: (params) => <Stack height='100%' justifyContent='center'>{params.value}</Stack>
-        },
-        {
-            field: 'name',
-            width: 150,
-            headerName: 'Tên sản phẩm',
-            flex: 1,
-            resizable: false,
-            hideSortIcons: true,
-            renderCell: (params) => {
-                const { row, value } = params
-                return (
-                    <Stack direction='row' alignItems='center' height='100%' gap={1}>
-                        <ShowImage
-                            src={row.img}
-                            sx={{
-                                width: "50px",
-                                height: "50px",
-                            }}
-                            variant='rounded'
-                        />
-                        <Typography variant='body2'>{value}</Typography>
-                    </Stack>
-                )
-            }
-        },
-        {
-            field: 'price',
-            width: 180,
-            headerName: 'Giá',
-            headerAlign: "center",
-            align: "center",
-            resizable: false,
-            hideSortIcons: true,
-            renderCell: (params) => {
-                const { row } = params
-                if (row.priceType === 0)
-                    return <Chip color='info' label={numberToPrice(row.singlePrice)} />
-                return (
-                    <Stack alignItems='center' gap={1} py={1}>
-                        {
-                            row.priceBySize.map((price: any, index: number) =>
-                                <Stack direction='row' alignItems='center' gap={1} key={index}>
-                                    <Typography
-                                        sx={{
-                                            width: '25px',
-                                            height: '25px',
-                                            borderRadius: '50%',
-                                            background: (theme) => theme.palette.text.primary,
-                                            color: 'white',
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            fontWeight: 700
-                                        }}
-                                        variant='body2'
-                                    >
-                                        {price.size.code !== 'normal' ? price.size.code.split('size')[1] : <>&#36;</>}
-                                    </Typography>
-                                    <Typography variant='body2' fontWeight={600}>{numberToPrice(price.price)}</Typography>
-                                </Stack>
-                            )
-                        }
-                    </Stack>
-                )
+            fieldName: 'name',
+            label: 'Tên sản phẩm',
+            gridCol: {
+                xs: 12,
+                md: 4
             },
+            type: 'text',
         },
         {
-            field: 'category',
-            width: 150,
-            headerName: 'Danh mục',
-            headerAlign: "center",
-            align: "center",
-            resizable: false,
-            hideSortIcons: true,
-            renderCell: (params) => <Stack height='100%' justifyContent='center'>{params.value}</Stack>
+            fieldName: 'category',
+            label: 'Danh mục',
+            gridCol: {
+                xs: 6,
+                md: 4
+            },
+            type: 'select',
+            valueOptions: []
         },
         {
-            field: 'ingredients',
-            width: 150,
-            headerName: 'Nguyên liệu',
-            headerAlign: "center",
-            align: "center",
-            resizable: false,
-            hideSortIcons: true,
-            renderCell: (params) => {
-                return <Stack height='100%' justifyContent='center' alignItems='center'>
-                    <Tooltip title="Mở bản nguyên liệu">
-                        <IconButton onClick={() => setIngredientData(params.value)}>
-                            <FontAwesomeIcon icon={faTableList} />
-                        </IconButton>
-                    </Tooltip>
-                </Stack>
-            }
+            fieldName: 'status',
+            label: 'Trạng thái',
+            gridCol: {
+                xs: 6,
+                md: 4
+            },
+            type: 'select',
+            valueOptions: [
+                {
+                    label: "Hoạt động",
+                    value: true
+                },
+                {
+                    label: "Đóng",
+                    value: false
+                }
+            ]
         },
         {
-            field: 'status',
-            width: 150,
-            headerName: 'Trạng thái',
-            align: 'center',
-            headerAlign: "center",
-            resizable: false,
-            hideSortIcons: true,
-            renderCell: (params) => <Stack alignItems='center' justifyContent='center' height='100%'>
-                <Status title={params.value ? 'Hoạt động' : 'Đóng'} type={params.value ? 'success' : 'error'} />
-            </Stack>
+            fieldName: 'ingredient',
+            label: 'Nguyên liệu',
+            gridCol: {
+                xs: 12,
+                md: 6
+            },
+            type: 'multi-select',
+            valueOptions: []
         },
         {
-            field: 'action',
-            width: 150,
-            headerName: 'Hành động',
-            resizable: false,
-            hideSortIcons: true,
-            headerAlign: "center",
-            align: "center",
-            renderCell: (params) => {
-                return (
-                    <Stack direction='row' alignItems='center' justifyContent='center' height='100%'>
-                        <Tooltip title="Sửa thông tin">
-                            <IconButton>
-                                <FontAwesomeIcon fontSize={18} icon={faPenToSquare} />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Xóa sản phẩm">
-                            <IconButton color='error'>
-                                <FontAwesomeIcon fontSize={18} icon={faTrashCan} />
-                            </IconButton>
-                        </Tooltip>
-                    </Stack>
-                )
-            }
+            fieldName: 'priceStart',
+            label: 'Giá đầu',
+            gridCol: {
+                xs: 6,
+                md: 3
+            },
+            type: 'number',
         },
-    ]
-    const params = Object.fromEntries([...searchParams])
+        {
+            fieldName: 'priceEnd',
+            label: 'Giá cuối',
+            gridCol: {
+                xs: 6,
+                md: 3
+            },
+            type: 'number',
+        },
+    ],
+    defaultValues: {
+        name: "",
+        category: "",
+        status: true,
+        ingredient: [],
+        priceStart: 0,
+        priceEnd: 0
+    },
+    validateSchema: yup.object().shape({
+        name: yup.string(),
+        category: yup.string(),
+        status: yup.boolean(),
+        priceStart: yup.number().transform((value) => value ? value : 0).typeError("Nhập giá là số").test("lessThan", "Giá đầu phải nhỏ hơn giá cuối", function (value) {
+            if (!value) return true
+            if (+this.parent.priceEnd < +value) return false
+            else return true
+        }),
+        priceEnd: yup.number().transform((value) => value ? value : 0).typeError("Nhập giá là số").test("greaterThan", "Giá cuối phải lớn hơn giá đầu", function (value) {
+            if (!value) return true
+            if (+this.parent.priceStart > +value) return false
+            else return true
+        })
+    })
+}
 
-    const { data, error, isLoading } = useProductGridData({ params })
-
-    if (error) return "An error has occurred.";
-    if (isLoading) return <LoadingComponent />;
-    const resetIngredientData = () => setIngredientData([])
+const ProductPage = () => {
+    const [filterFieldData, setFilterFieldData] = useState<FilterField>(filterFields)
+    const { data, isLoading } = useProductFilterValueOptions()
+    useEffect(() => {
+        const updateField = filterFields.fields.map(item => {
+            if (item.fieldName === 'category') {
+                const valueOptions = data?.categories.map(p => ({ label: p.name, value: p.code }))
+                item.valueOptions.unshift({
+                    label: "Tất cả",
+                    value: ""
+                })
+                return {
+                    ...item,
+                    valueOptions: valueOptions
+                }
+            }
+            if (item.fieldName === 'ingredient') {
+                const valueOptions = data?.ingredients.map(p => ({ label: p.name, value: p.code }))
+                item.valueOptions.unshift({
+                    label: "Tất cả",
+                    value: ""
+                })
+                return {
+                    ...item,
+                    valueOptions: valueOptions
+                }
+            }
+            return {
+                ...item
+            }
+        })
+        setFilterFieldData({
+            ...filterFieldData,
+            fields: updateField
+        })
+    }, [isLoading])
 
     return (
         <ShadowBox sx={{ borderRadius: '20px' }}>
             <Wrapper gap={2}>
                 <Typography variant='h2'>Danh sách sản phẩm</Typography>
-                <InforGrid
-                    columns={columns}
-                    rows={data.dataSource}
-                    rowCount={data.rowCount}
-                    sx={{
-                        minHeight: '200px'
-                    }}
-                    getRowHeight={() => 'auto'}
-                />
-                {
-                    ingredientData && ingredientData.length > 0 &&
-                    <ModalIngredientList ingredientData={ingredientData} resetIngredientData={resetIngredientData} />
-                }
+                <FilterForm filterFields={filterFieldData} />
+                <ProductGridInfo />
             </Wrapper>
         </ShadowBox>
     )

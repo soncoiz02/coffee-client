@@ -7,11 +7,11 @@ const useIngredientDiary = (...options: any) => {
     const { getOrderNumberByPage } = useQueryParams()
     return {
         data: {
-            dataSource: data?.data.map((item, index: number) => ({
+            dataSource: data?.data ? data.data.map((item, index: number) => ({
                 no: getOrderNumberByPage(index + 1),
                 id: item._id,
                 ...item
-            })),
+            })) : [],
             rowCount: data?.meta.total
         },
         isLoading,

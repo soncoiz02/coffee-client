@@ -6,7 +6,7 @@ interface IProps {
     options: any
 }
 
-export type RHFAutoCompleteProps = IProps & TextFieldProps & AutocompleteProps<any, any, any, any>
+export type RHFAutoCompleteProps = IProps & TextFieldProps & any
 
 export const RHFAutoComplete = ({ name, options, ...other }: RHFAutoCompleteProps) => {
     const { control } = useFormContext()
@@ -16,13 +16,12 @@ export const RHFAutoComplete = ({ name, options, ...other }: RHFAutoCompleteProp
             name={name}
             render={({ field: { value, ref, onChange, ...field }, fieldState: { error } }) => (
                 <Autocomplete
-                    {...other}
                     value={value || null}
                     onChange={(_, data) => onChange(data)}
                     options={options}
                     getOptionLabel={(option: any) => option.label || ''}
-                    isOptionEqualToValue={(option: any, value: any) => option.id === value.id}
                     disablePortal
+                    {...other}
                     renderInput={(params) => (
                         <TextField
                             error={!!error}

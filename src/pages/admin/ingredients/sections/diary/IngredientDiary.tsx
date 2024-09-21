@@ -6,7 +6,7 @@ import FilterForm, { FilterField } from '../../../../../components/FilterForm'
 
 import * as yup from 'yup'
 import { TextMaskCustomDate } from '../../../../../components/TextMaskCustom'
-import { isValidDate } from '../../../../../utils/time'
+import { formatDate, isValidDate } from '../../../../../utils/time'
 
 const filterFields: FilterField = {
     fields: [
@@ -26,18 +26,18 @@ const filterFields: FilterField = {
                 xs: 6,
                 md: 6
             },
-            type: "text",
+            type: "date",
             mask: TextMaskCustomDate
         }
     ],
     defaultValues: {
         user: "",
-        createdAt: ""
+        createdAt: formatDate(new Date(), "dd/MM/yyyy")
     },
     validateSchema: yup.object().shape({
         user: yup.string(),
         createdAt: yup.string().test("validDate", "Sai định dạng thời gian", (value) => {
-            if (!value) return false
+            if (!value) return true
             return isValidDate(value)
         })
     })
