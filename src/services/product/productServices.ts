@@ -1,4 +1,4 @@
-import { ProductType, ResFilterValueOptions, ResGetGridData, ResGetListSize } from "../../types/product";
+import { ProductType, ResFilterValueOptions, ResGetByCode, ResGetGridData, ResGetListSize } from "../../types/product";
 import { BaseApi } from "../baseApi";
 
 const ProductApiIns = new BaseApi('/product')
@@ -7,7 +7,8 @@ const URLS = {
     create: "/create-product",
     getSize: "/get-list-size",
     getGridData: "/get-grid-data",
-    getFilterValueOptions: "/filter-value-options"
+    getFilterValueOptions: "/filter-value-options",
+    getByCode: "/get-by-code"
 }
 
 type CreateProductRes = {
@@ -30,5 +31,8 @@ export const ProductServices = {
     },
     getFilterValueOptions: (url: string, ...options: any) => {
         return ProductApiIns.get<ResFilterValueOptions>(url, ...options)
+    },
+    getByCode: (url: string, ...options: any) => {
+        return ProductApiIns.get<ResGetByCode>(url, ...options)
     }
 }

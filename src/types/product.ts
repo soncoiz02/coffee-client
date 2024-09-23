@@ -57,8 +57,12 @@ export interface ProductGridData extends Omit<BaseProductType, "category"> {
     no: number
 }
 
+export interface GridPriceByType extends Omit<ProductPriceType, "size"> {
+    size: BaseProductSize
+}
+
 export interface GridData extends Omit<BaseProductType, "category"> {
-    priceBySize: ProductPriceType[]
+    priceBySize: GridPriceByType[]
     singlePrice: number
     ingredient: ResProductIngredient[]
     category: BaseCategory
@@ -70,4 +74,21 @@ export interface ResGetGridData {
     meta: {
         total: number
     }
+}
+
+export interface ResFilterValueOptions {
+    status: string
+    data: {
+        categories: BaseCategory[],
+        ingredients: {
+            _id: string,
+            name: string,
+            code: string
+        }[]
+    }
+}
+
+export interface ResGetByCode {
+    status: string
+    data: GridData
 }

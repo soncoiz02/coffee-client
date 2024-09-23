@@ -108,37 +108,39 @@ const ProductPage = () => {
     const [filterFieldData, setFilterFieldData] = useState<FilterField>(filterFields)
     const { data, isLoading } = useProductFilterValueOptions()
     useEffect(() => {
-        const updateField = filterFields.fields.map(item => {
-            if (item.fieldName === 'category') {
-                const valueOptions = data?.categories.map(p => ({ label: p.name, value: p.code }))
-                item.valueOptions.unshift({
-                    label: "Tất cả",
-                    value: ""
-                })
-                return {
-                    ...item,
-                    valueOptions: valueOptions
+        if (data) {
+            const updateField = filterFields.fields.map(item => {
+                if (item.fieldName === 'category') {
+                    const valueOptions = data?.categories.map(p => ({ label: p.name, value: p.code }))
+                    item.valueOptions.unshift({
+                        label: "Tất cả",
+                        value: ""
+                    })
+                    return {
+                        ...item,
+                        valueOptions: valueOptions
+                    }
                 }
-            }
-            if (item.fieldName === 'ingredient') {
-                const valueOptions = data?.ingredients.map(p => ({ label: p.name, value: p.code }))
-                item.valueOptions.unshift({
-                    label: "Tất cả",
-                    value: ""
-                })
-                return {
-                    ...item,
-                    valueOptions: valueOptions
+                if (item.fieldName === 'ingredient') {
+                    const valueOptions = data?.ingredients.map(p => ({ label: p.name, value: p.code }))
+                    item.valueOptions.unshift({
+                        label: "Tất cả",
+                        value: ""
+                    })
+                    return {
+                        ...item,
+                        valueOptions: valueOptions
+                    }
                 }
-            }
-            return {
-                ...item
-            }
-        })
-        setFilterFieldData({
-            ...filterFieldData,
-            fields: updateField
-        })
+                return {
+                    ...item
+                }
+            })
+            setFilterFieldData({
+                ...filterFieldData,
+                fields: updateField
+            })
+        }
     }, [isLoading])
 
     return (

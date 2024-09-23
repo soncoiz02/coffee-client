@@ -4,7 +4,7 @@ import { Chip, Collapse, Divider, IconButton, Stack, Tooltip, Typography, useThe
 import { useState } from "react";
 import ShadowBox from "../../../components/ShadowBox";
 import { Wrapper } from "./index";
-import Form from "./sections/Form";
+import Form from "./sections/form-add/Form";
 
 const ProductForm = () => {
   const [formId, setFormId] = useState<string[]>(["form-1"]);

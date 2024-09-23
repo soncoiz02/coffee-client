@@ -2,8 +2,8 @@ import { Autocomplete, Checkbox, Grid, TextField } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Dispatch, useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
-import { BaseIngredient } from "../../../../types/ingredient";
-import { deepCopy } from "../../../../utils/deepCopy";
+import { BaseIngredient } from "../../../../../types/ingredient";
+import { deepCopy } from "../../../../../utils/deepCopy";
 
 type PropsTypes = {
   methods: UseFormReturn;

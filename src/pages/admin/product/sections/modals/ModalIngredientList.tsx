@@ -1,9 +1,9 @@
+import { Typography } from '@mui/material'
+import { GridColDef } from '@mui/x-data-grid'
 import { useEffect, useState } from 'react'
-import { CustomContentModal, CustomModal } from '../../../../theme/styled-components/modal'
-import { ResProductIngredient } from '../../../../types/product'
-import { Button, Stack, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
-import InforGrid from '../../../../components/datagrid/InforGrid'
+import InforGrid from '../../../../../components/datagrid/InforGrid'
+import { CustomContentModal, CustomModal } from '../../../../../theme/styled-components/modal'
+import { ResProductIngredient } from '../../../../../types/product'
 
 type PropsType = {
     ingredientData: ResProductIngredient[]

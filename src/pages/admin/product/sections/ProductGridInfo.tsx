@@ -2,7 +2,7 @@ import { Chip, IconButton, Stack, Tooltip, Typography } from "@mui/material"
 import { GridColDef } from "@mui/x-data-grid"
 import { ResProductIngredient } from "../../../../types/product"
 import { useState } from "react"
-import { useSearchParams } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { numberToPrice } from "../../../../utils/formatNumber"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faPenToSquare, faTableList, faTrashCan } from "@fortawesome/free-solid-svg-icons"
@@ -10,8 +10,9 @@ import Status from "../../../../components/Status"
 import useProductGridData from "../../../../hooks/swr/useProductGridData"
 import { LoadingComponent } from "../../../../components/Loading"
 import InforGrid from "../../../../components/datagrid/InforGrid"
-import ModalIngredientList from "./ModalIngredientList"
+import ModalIngredientList from "./modals/ModalIngredientList"
 import ShowImage from "../../../../components/ShowImage"
+import ModalEditProduct from "./modals/ModalEditProduct"
 
 const ProductGridInfo = () => {
     const [ingredientData, setIngredientData] = useState<ResProductIngredient[]>([])
@@ -142,7 +143,7 @@ const ProductGridInfo = () => {
                 return (
                     <Stack direction='row' alignItems='center' justifyContent='center' height='100%'>
                         <Tooltip title="Sửa thông tin">
-                            <IconButton>
+                            <IconButton onClick={() => onEdit(params.row.code)}>
                                 <FontAwesomeIcon fontSize={18} icon={faPenToSquare} />
                             </IconButton>
                         </Tooltip>
@@ -158,13 +159,13 @@ const ProductGridInfo = () => {
     ]
     const [searchParams] = useSearchParams()
     const params = Object.fromEntries([...searchParams])
-    console.log(searchParams);
-
     const { data, error, isLoading } = useProductGridData({ params })
+    const [productCode, setProductCode] = useState<string>("")
 
     if (error) return "An error has occurred.";
     if (isLoading) return <LoadingComponent />;
     const resetIngredientData = () => setIngredientData([])
+    const onEdit = (code: string) => setProductCode(code)
     return (
         <>
             <InforGrid
@@ -179,6 +180,10 @@ const ProductGridInfo = () => {
             {
                 ingredientData && ingredientData.length > 0 &&
                 <ModalIngredientList ingredientData={ingredientData} resetIngredientData={resetIngredientData} />
+            }
+            {
+                productCode &&
+                <ModalEditProduct code={productCode} />
             }
         </>
     )

@@ -2,7 +2,7 @@ import { faImage, faUpload } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Avatar, Button, Stack, styled, Typography, useTheme } from '@mui/material'
 import { ChangeEvent, useState } from 'react'
-import { toastServices } from '../../../../services/toast/toastServices'
+import { toastServices } from '../../../../../services/toast/toastServices'
 
 const UploadWrapper = styled(Stack)(({ theme }) => ({
     height: '200px',

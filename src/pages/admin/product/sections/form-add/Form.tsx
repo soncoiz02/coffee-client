@@ -3,22 +3,22 @@ import { Box, Button, Grid, MenuItem, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
-import RHFProvider from "../../../../components/RHF/RHFProvider";
-import RHFSelect from "../../../../components/RHF/RHFSelect";
-import RHFTextField from "../../../../components/RHF/RHFTextField";
-import { BaseProductSize, BaseProductType, ProductType } from "../../../../types/product";
+import RHFProvider from "../../../../../components/RHF/RHFProvider";
+import RHFSelect from "../../../../../components/RHF/RHFSelect";
+import RHFTextField from "../../../../../components/RHF/RHFTextField";
+import { BaseProductSize, BaseProductType, ProductType } from "../../../../../types/product";
 import IngredientSection from "./IngredientSection";
 import PriceSection from "./PriceSection";
 import UploadImg from "./UploadImg";
-import useDebounce from "../../../../hooks/useDebounce";
-import { toastServices } from "../../../../services/toast/toastServices";
-import { useAppDispatch } from "../../../../redux/hook";
-import { hideLoading, showLoading } from "../../../../redux/feature/loadingSlice";
-import { ProductServices } from "../../../../services/product/productServices";
-import { CategoryServices } from "../../../../services/category/categoryServices";
-import { BaseCategory } from "../../../../types/category";
-import { IngredientServices } from "../../../../services/ingredient/ingredientServices";
-import { BaseIngredient } from "../../../../types/ingredient";
+import useDebounce from "../../../../../hooks/useDebounce";
+import { toastServices } from "../../../../../services/toast/toastServices";
+import { useAppDispatch } from "../../../../../redux/hook";
+import { hideLoading, showLoading } from "../../../../../redux/feature/loadingSlice";
+import { ProductServices } from "../../../../../services/product/productServices";
+import { CategoryServices } from "../../../../../services/category/categoryServices";
+import { BaseCategory } from "../../../../../types/category";
+import { IngredientServices } from "../../../../../services/ingredient/ingredientServices";
+import { BaseIngredient } from "../../../../../types/ingredient";
 
 export interface DataType extends Omit<BaseProductType, '_id'> {
   priceType: 0 | 1;
@@ -90,7 +90,6 @@ const Form = ({ formId, setProductName }: PropsType) => {
   const {
     handleSubmit,
     watch,
-    formState: { isValid },
   } = methods;
 
   const debounceProductName = useDebounce(watch("name"), 1500);

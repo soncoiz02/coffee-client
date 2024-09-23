@@ -3,7 +3,7 @@ import { ProductServices } from '../../services/product/productServices'
 import useQueryParams from '../useQueryParams'
 
 const useProductGridData = (...options: any) => {
-    const { data, error, isLoading } = useSWR("/get-grid-data", (url: string) => ProductServices.getGridData(url, ...options))
+    const { data, error, isLoading } = useSWR(["/get-grid-data", ...options], ([url, ...arg]) => ProductServices.getGridData(url, ...arg))
     const { getOrderNumberByPage } = useQueryParams()
     return {
         data: {

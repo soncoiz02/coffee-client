@@ -7,8 +7,8 @@ import TimelineSeparator from "@mui/lab/TimelineSeparator";
 import { Autocomplete, Checkbox, FormControl, FormControlLabel, Grid, Radio, RadioGroup, Stack, TextField, Typography } from "@mui/material";
 import { ChangeEvent, Dispatch, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
-import RHFTextField from "../../../../components/RHF/RHFTextField";
-import { BaseProductSize } from "../../../../types/product";
+import RHFTextField from "../../../../../components/RHF/RHFTextField";
+import { BaseProductSize } from "../../../../../types/product";
 
 type PropsTypes = {
     methods: UseFormReturn;
