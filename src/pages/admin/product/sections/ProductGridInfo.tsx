@@ -183,7 +183,7 @@ const ProductGridInfo = () => {
             }
             {
                 productCode &&
-                <ModalEditProduct code={productCode} />
+                <ModalEditProduct code={productCode} resetCode={() => setProductCode("")} />
             }
         </>
     )
