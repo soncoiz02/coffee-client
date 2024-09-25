@@ -161,11 +161,12 @@ const ProductGridInfo = () => {
     const params = Object.fromEntries([...searchParams])
     const { data, error, isLoading } = useProductGridData({ params })
     const [productCode, setProductCode] = useState<string>("")
+    const navigate = useNavigate()
 
     if (error) return "An error has occurred.";
     if (isLoading) return <LoadingComponent />;
     const resetIngredientData = () => setIngredientData([])
-    const onEdit = (code: string) => setProductCode(code)
+    const onEdit = (code: string) => navigate(`/admin/product/form/${code}`)
     return (
         <>
             <InforGrid

@@ -141,6 +141,7 @@ const FilterForm = ({ filterFields: { defaultValues, fields, validateSchema } }:
                                                 options={field.valueOptions}
                                                 label={field.label}
                                                 multiple
+                                                disableCloseOnSelect
                                                 isOptionEqualToValue={(option: any, value: any) => option.value === value.value}
                                                 renderOption={(props: any, option: any, { selected }: any) => {
                                                     const { key, ...optionProps } = props;

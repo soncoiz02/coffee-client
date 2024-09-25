@@ -19,10 +19,12 @@ import { CategoryServices } from "../../../../../services/category/categoryServi
 import { BaseCategory } from "../../../../../types/category";
 import { IngredientServices } from "../../../../../services/ingredient/ingredientServices";
 import { BaseIngredient } from "../../../../../types/ingredient";
+import { useParams } from "react-router-dom";
+import { stringThounsandToNumber } from "../../../../../utils/formatNumber";
 
 export interface DataType extends Omit<BaseProductType, '_id'> {
   priceType: 0 | 1;
-  singlePrice?: number;
+  singlePrice?: string;
 }
 
 const initialData: DataType = {
@@ -30,7 +32,7 @@ const initialData: DataType = {
   img: "",
   category: "",
   priceType: 0,
-  singlePrice: 0,
+  singlePrice: "0",
   status: true,
 };
 
@@ -40,11 +42,14 @@ const formSchema = yup.object().shape<any>({
   img: yup.string().trim(),
   priceType: yup.number(),
   singlePrice: yup
-    .number()
-    .typeError("Nhập giá sản phẩm")
+    .string()
     .when("priceType", (priceType, schema) => {
       if (priceType[0] === 0) {
-        return schema.positive("Nhập giá lớn hơn 0").required("Nhập giá sản phẩm");
+        return schema.required("Nhập giá sản phẩm")
+          .test("positive", "Nhập giá lớn hơn 0", (value) => {
+            if (!value) return
+            return stringThounsandToNumber(value) > 0
+          });
       }
       return schema;
     }),
@@ -79,6 +84,7 @@ const Form = ({ formId, setProductName }: PropsType) => {
   const [categoryOpts, setCategoryOpts] = useState<BaseCategory[]>([]);
   const [sizeOpts, setSizeOpts] = useState<BaseProductSize[]>([])
   const [listIngredientOtps, setListIngredientOtps] = useState<BaseIngredient[]>([]);
+  const { productCode } = useParams()
 
   const dispatch = useAppDispatch();
 
@@ -90,6 +96,7 @@ const Form = ({ formId, setProductName }: PropsType) => {
   const {
     handleSubmit,
     watch,
+    reset,
   } = methods;
 
   const debounceProductName = useDebounce(watch("name"), 1500);
@@ -119,7 +126,7 @@ const Form = ({ formId, setProductName }: PropsType) => {
       }
     }
 
-    if (!additionalValue.ingredient) {
+    if (!additionalValue.ingredients) {
       toastServices.error("Chưa nhập nguyên liệu cho sản phẩm", {
         position: "top-center",
       });
@@ -132,9 +139,7 @@ const Form = ({ formId, setProductName }: PropsType) => {
   const onSubmit = (values: any) => {
     const isValid = getAddtionalError(values);
     if (isValid) {
-      console.log(additionalValue);
-
-      const ingredients = additionalValue.ingredient.map((ingre: any) => {
+      const ingredients = additionalValue.ingredients.map((ingre: any) => {
         return {
           priceType: ingre.type.code,
           ingredients: ingre.ingredients.map((p: any) => ({ ingredient: p._id, quantity: p.quantity })),
@@ -157,7 +162,12 @@ const Form = ({ formId, setProductName }: PropsType) => {
       else {
         data.priceBySize = [{ size: 'normal', price: values.singlePrice }]
       }
-      handleCreateProduct(data)
+      if (productCode) {
+
+      }
+      else {
+        handleCreateProduct(data)
+      }
     }
   };
 
@@ -214,6 +224,74 @@ const Form = ({ formId, setProductName }: PropsType) => {
     }
   }
 
+  const handleResetForm = () => {
+    reset({
+      ...initialData
+    })
+    setAdditionalValue({
+      priceBySize: null,
+      ingredient: null,
+      img: null
+    })
+  }
+
+  const handleGetDetailProduct = async (code: string, signal: any) => {
+    try {
+      const res = await ProductServices.getByCode(`/get-by-code/${code}`, { signal })
+      if (res.status === 'success') {
+        const { data } = res
+        const { priceBySize, ingredients } = data
+
+        const additionalPriceBySize: any = {}
+
+        priceBySize.forEach(price => {
+          additionalPriceBySize[price.size.code] = {
+            value: price.price,
+            label: price.size.name,
+            id: price.size._id
+          }
+        })
+
+        const listSize = priceBySize.map((item) => item.size)
+
+        const additionalIngredients = ingredients.map(ingre => {
+          const listIngre = ingre.data.map(item => {
+            return {
+              quantity: item.quantity,
+              ingredients: { ...item.ingredient }
+            }
+          })
+          const obj = {
+            type: {
+              code: ingre.priceType,
+              label: listSize.find(p => p.code === ingre.priceType)?.name
+            },
+            ingredients: listIngre
+          }
+          return {
+            ...obj
+          }
+        })
+
+        setAdditionalValue({
+          ...additionalValue,
+          priceBySize: { ...additionalPriceBySize },
+          ingredients: additionalIngredients
+        })
+
+        reset({
+          name: data.name,
+          category: data.category._id,
+          status: data.status,
+          singlePrice: priceBySize.length === 1 ? priceBySize[0].price.toString() : "0",
+          priceType: priceBySize.length > 1 ? 1 : 0
+        })
+      }
+    } catch (error: any) {
+      toastServices.error(error.message)
+    }
+  }
+
   useEffect(() => {
     const abortController = new AbortController();
     const signal = abortController.signal;
@@ -228,6 +306,20 @@ const Form = ({ formId, setProductName }: PropsType) => {
       abortController.abort()
     }
   }, [])
+
+  useEffect(() => {
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+
+    if (productCode)
+      handleGetDetailProduct(productCode, signal)
+    else
+      handleResetForm()
+
+    return () => {
+      abortController.abort()
+    }
+  }, [productCode])
 
   useEffect(() => {
     setProductName(formId, debounceProductName);
@@ -255,7 +347,7 @@ const Form = ({ formId, setProductName }: PropsType) => {
           </Grid>
           <Grid item xs={12} md={4}>
             <RHFSelect disabled={isSubmitSuccess} name="status" label="Trạng thái">
-              {statusOpts.map((item) => (
+              {statusOpts && statusOpts.map((item) => (
                 <MenuItem key={item.id} value={item.value}>
                   {item.text}
                 </MenuItem>

@@ -174,7 +174,7 @@ const IngredientEditableGrid = () => {
       headerAlign: "center",
       align: "center",
       renderCell: (params: GridCellParams) => {
-        const { id } = params;
+        const { productCode } = params;
         return (
           <Tooltip title="Xóa dòng">
             <IconButton color="error" onClick={(e: any) => handleDeleteRow(id)}>

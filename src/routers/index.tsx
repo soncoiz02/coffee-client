@@ -34,7 +34,7 @@ const Routers = () => {
               element: <ProductForm />
             },
             {
-              path: 'form/:id',
+              path: 'form/:productCode',
               element: <ProductForm />
             }
           ]

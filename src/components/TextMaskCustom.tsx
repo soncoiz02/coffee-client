@@ -21,3 +21,19 @@ export const TextMaskCustomDate = forwardRef<HTMLInputElement, CustomProps>(
         );
     },
 )
+
+export const TextMaskCustomNumber = forwardRef<HTMLInputElement, CustomProps>(
+    function TextMaskCustom(props, ref) {
+        const { onChange, ...other } = props;
+        return (
+            <IMaskInput
+                {...other}
+                mask={Number}
+                inputRef={ref}
+                onAccept={(value: any) => onChange({ target: { name: props.name, value } })}
+                overwrite
+                thousandsSeparator=","
+            />
+        );
+    },
+)

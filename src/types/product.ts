@@ -90,5 +90,10 @@ export interface ResFilterValueOptions {
 
 export interface ResGetByCode {
     status: string
-    data: GridData
+    data: {
+        priceBySize: GridPriceByType[]
+        singlePrice: number
+        ingredients: ResProductIngredient[]
+        category: BaseCategory
+    } & Omit<BaseProductType, "category">
 }

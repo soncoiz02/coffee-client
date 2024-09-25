@@ -5,12 +5,14 @@ import { useState } from "react";
 import ShadowBox from "../../../components/ShadowBox";
 import { Wrapper } from "./index";
 import Form from "./sections/form-add/Form";
+import { useParams } from "react-router-dom";
 
 const ProductForm = () => {
   const [formId, setFormId] = useState<string[]>(["form-1"]);
   const [listHideForm, setListHideForm] = useState<string[]>([]);
   const [listProductName, setListProductName] = useState<any>([]);
   const theme = useTheme();
+  const { productCode } = useParams()
 
   const checkShowForm = (id: string) => {
     return !listHideForm.includes(id);
@@ -74,13 +76,16 @@ const ProductForm = () => {
     <ShadowBox sx={{ borderRadius: "20px" }}>
       <Wrapper sx={{ minHeight: "60vh" }}>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <Typography variant="h2">Tạo sản phẩm</Typography>
+          <Typography variant="h2">{productCode ? "Sửa" : "Tạo"} sản phẩm</Typography>
           <Stack direction="row" alignItems="center" gap={{ xs: 1, md: 2 }}>
-            <Tooltip title="Thêm sản phẩm" placement="top">
-              <IconButton color="primary" onClick={addForm}>
-                <FontAwesomeIcon icon={faCirclePlus} />
-              </IconButton>
-            </Tooltip>
+            {
+              !productCode &&
+              <Tooltip title="Thêm sản phẩm" placement="top">
+                <IconButton color="primary" onClick={addForm}>
+                  <FontAwesomeIcon icon={faCirclePlus} />
+                </IconButton>
+              </Tooltip>
+            }
           </Stack>
         </Stack>
         <Stack>

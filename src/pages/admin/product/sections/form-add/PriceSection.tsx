@@ -5,10 +5,13 @@ import TimelineDot from "@mui/lab/TimelineDot";
 import TimelineItem, { timelineItemClasses } from "@mui/lab/TimelineItem";
 import TimelineSeparator from "@mui/lab/TimelineSeparator";
 import { Autocomplete, Checkbox, FormControl, FormControlLabel, Grid, Radio, RadioGroup, Stack, TextField, Typography } from "@mui/material";
-import { ChangeEvent, Dispatch, useState } from "react";
+import { ChangeEvent, Dispatch, useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import RHFTextField from "../../../../../components/RHF/RHFTextField";
 import { BaseProductSize } from "../../../../../types/product";
+import { useParams } from "react-router-dom";
+import { TextMaskCustomNumber } from "../../../../../components/TextMaskCustom";
+import { stringThounsandToNumber } from "../../../../../utils/formatNumber";
 
 type PropsTypes = {
     methods: UseFormReturn;
@@ -21,12 +24,18 @@ type PropsTypes = {
 const PriceSection = ({ methods, additionalValue, setAdditionalValue, isSubmitSuccess, sizeOpts }: PropsTypes) => {
     const [priceType, setPriceType] = useState(0);
     const [listSize, setListSize] = useState<BaseProductSize[]>([]);
+    const [priceBySizeValue, setPriceBySizeValue] = useState<any>()
+    const { productCode } = useParams()
 
     const {
         clearErrors,
         setValue,
+        getValues,
         formState: { isSubmitted },
     } = methods;
+
+    const priceTypeFormVal = getValues("priceType")
+
 
     const disablePriceField = (type: string) => {
         if (type === "single") {
@@ -46,22 +55,31 @@ const PriceSection = ({ methods, additionalValue, setAdditionalValue, isSubmitSu
 
         if (value === 0) {
             setListSize([]);
-            setAdditionalValue({
-                ...additionalValue,
-                priceBySize: null,
-            });
+            if (!productCode) {
+                setAdditionalValue({
+                    ...additionalValue,
+                    priceBySize: null,
+                });
+            }
         } else if (value === 1) {
-            clearErrors("singlePrice");
-            setValue("singlePrice", 0);
+            if (productCode) {
+                getDetailPriceBySize()
+            }
+            else {
+                clearErrors("singlePrice");
+                setValue("singlePrice", "0");
+            }
         }
     };
 
     const handleChangeSize = (event: any, values: any) => {
         setListSize(values);
         const priceBySize: any = {};
+        const priceBySizeInputVal: any = {}
         values.forEach((value: any) => {
             const field = value.code;
             const price = additionalValue.priceBySize;
+            priceBySizeInputVal[field] = ""
             if (price && Object.keys(price).length > 0) {
                 if (price[field]) {
                     priceBySize[field] = {
@@ -69,17 +87,18 @@ const PriceSection = ({ methods, additionalValue, setAdditionalValue, isSubmitSu
                     };
                 } else {
                     priceBySize[field] = {
-                        value: null,
+                        value: "",
                         label: value.name,
                     };
                 }
             } else {
                 priceBySize[field] = {
-                    value: null,
+                    value: "",
                     label: value.name,
                 };
             }
         });
+        setPriceBySizeValue(priceBySizeInputVal)
         setAdditionalValue({
             ...additionalValue,
             priceBySize: {
@@ -102,14 +121,18 @@ const PriceSection = ({ methods, additionalValue, setAdditionalValue, isSubmitSu
         };
     };
 
-    const setPriceBySizeValue = (e: ChangeEvent<HTMLInputElement>, size: any) => {
-        const value = parseInt(e.target.value);
+    const onPriceBySizeChange = (e: ChangeEvent<HTMLInputElement>, size: any) => {
+        const value = e.target.value
+        setPriceBySizeValue({
+            ...priceBySizeValue,
+            [size.code]: value
+        })
         setAdditionalValue({
             ...additionalValue,
             priceBySize: {
                 ...additionalValue.priceBySize,
                 [size.code]: {
-                    value,
+                    value: stringThounsandToNumber(value),
                     label: size.name,
                     id: size._id
                 },
@@ -118,15 +141,14 @@ const PriceSection = ({ methods, additionalValue, setAdditionalValue, isSubmitSu
     };
 
     const validatePriceBySize = (code: string) => {
-        const priceBySize = additionalValue.priceBySize;
-        if (priceBySize && isSubmitted) {
-            const price = priceBySize[code].value;
+        if (isSubmitted) {
+            const price = priceBySizeValue[code]
             if (!price) {
                 return {
                     isError: true,
                     message: "Nhập giá theo size",
                 };
-            } else if (price <= 0) {
+            } else if (stringThounsandToNumber(price) <= 0) {
                 return {
                     isError: true,
                     message: "Nhập giá lớn hơn 0",
@@ -145,6 +167,37 @@ const PriceSection = ({ methods, additionalValue, setAdditionalValue, isSubmitSu
         };
     };
 
+    const getDetailPriceBySize = () => {
+        const { priceBySize } = additionalValue
+        if (priceBySize !== null) {
+            const price: any = {}
+            const size = Object.keys(priceBySize).map(key => {
+                price[key] = priceBySize[key].value.toString()
+                return {
+                    _id: priceBySize[key].id,
+                    name: priceBySize[key].label,
+                    code: key
+                }
+            })
+            if (size.length > 1) {
+                setListSize(size)
+                setPriceBySizeValue(price)
+            }
+        }
+    }
+
+    useEffect(() => {
+        setPriceType(priceTypeFormVal)
+        if (productCode) {
+            getDetailPriceBySize()
+        }
+        else {
+            if (priceTypeFormVal === 0) {
+                setListSize([])
+            }
+        }
+    }, [priceTypeFormVal])
+
     return (
         <Grid container spacing={2}>
             <Grid item xs={12}>
@@ -160,76 +213,86 @@ const PriceSection = ({ methods, additionalValue, setAdditionalValue, isSubmitSu
             </Grid>
             <Grid item xs={12}>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} md={4}>
-                        <RHFTextField
-                            type="number"
-                            name="singlePrice"
-                            label="Giá đơn"
-                            placeholder="Giá sản phẩm"
-                            inputProps={{ inputMode: "numeric" }}
-                            disabled={disablePriceField("single") || isSubmitSuccess}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={8}>
-                        <Grid container>
-                            <Grid item xs={12}>
-                                <Autocomplete
-                                    multiple
-                                    options={sizeOpts}
-                                    disableCloseOnSelect
-                                    value={listSize}
-                                    disabled={disablePriceField("size") || isSubmitSuccess}
-                                    getOptionLabel={(option) => option.name}
-                                    onChange={handleChangeSize}
-                                    limitTags={2}
-                                    renderOption={(props, option, { selected }) => {
-                                        const { key, ...optionProps } = props;
-                                        return (
-                                            <li key={option._id} {...optionProps}>
-                                                <Checkbox style={{ marginRight: 8 }} checked={selected} />
-                                                {option.name}
-                                            </li>
-                                        );
+                    {
+                        priceType === 0 ?
+                            <Grid item xs={12} md={8}>
+                                <RHFTextField
+                                    name="singlePrice"
+                                    label="Giá đơn"
+                                    placeholder="Giá sản phẩm"
+                                    inputProps={{ inputMode: "numeric" }}
+                                    disabled={disablePriceField("single") || isSubmitSuccess}
+                                    InputProps={{
+                                        inputComponent: TextMaskCustomNumber as any
                                     }}
-                                    renderInput={(params) => (
-                                        <TextField {...params} label="Chọn size" error={getErrorSelectPrice().isError} helperText={getErrorSelectPrice().message} />
-                                    )}
                                 />
-                            </Grid>
-                            {listSize.length > 0 && (
-                                <Grid item xs={12}>
-                                    <Timeline
-                                        sx={{
-                                            [`& .${timelineItemClasses.root}:before`]: {
-                                                flex: 0,
-                                                padding: 0,
-                                            },
-                                        }}
-                                    >
-                                        {listSize.map((size, index) => (
-                                            <TimelineItem key={size._id}>
-                                                <TimelineSeparator>
-                                                    <TimelineDot />
-                                                    <TimelineConnector />
-                                                </TimelineSeparator>
-                                                <TimelineContent>
-                                                    <TextField
-                                                        type="number"
-                                                        value={additionalValue?.priceBySize[size.code]?.value}
-                                                        onChange={(e: ChangeEvent<HTMLInputElement>) => setPriceBySizeValue(e, size)}
-                                                        label={size.name}
-                                                        helperText={validatePriceBySize(size.code).message}
-                                                        error={validatePriceBySize(size.code).isError}
-                                                        disabled={isSubmitSuccess}
-                                                    />
-                                                </TimelineContent>
-                                            </TimelineItem>
-                                        ))}
-                                    </Timeline>
+                            </Grid> :
+                            <Grid item xs={12}>
+                                <Grid container>
+                                    <Grid item xs={12}>
+                                        <Autocomplete
+                                            multiple
+                                            options={sizeOpts}
+                                            disableCloseOnSelect
+                                            value={listSize}
+                                            disabled={disablePriceField("size") || isSubmitSuccess}
+                                            getOptionLabel={(option) => option.name}
+                                            onChange={handleChangeSize}
+                                            renderOption={(props, option, { selected }) => {
+                                                const { key, ...optionProps } = props;
+                                                return (
+                                                    <li key={option._id} {...optionProps}>
+                                                        <Checkbox style={{ marginRight: 8 }} checked={selected} />
+                                                        {option.name}
+                                                    </li>
+                                                );
+                                            }}
+                                            renderInput={(params) => (
+                                                <TextField {...params} label="Chọn size" error={getErrorSelectPrice().isError} helperText={getErrorSelectPrice().message} />
+                                            )}
+                                        />
+                                    </Grid>
+                                    {listSize.length > 0 && (
+                                        <Grid item xs={12}>
+                                            <Timeline
+                                                sx={{
+                                                    [`& .${timelineItemClasses.root}:before`]: {
+                                                        flex: 0,
+                                                        padding: 0,
+                                                    },
+                                                }}
+                                            >
+                                                {listSize.map((size) => (
+                                                    <TimelineItem key={size._id}>
+                                                        <TimelineSeparator>
+                                                            <TimelineDot />
+                                                            <TimelineConnector />
+                                                        </TimelineSeparator>
+                                                        <TimelineContent>
+                                                            {
+                                                                priceBySizeValue &&
+                                                                <TextField
+                                                                    value={priceBySizeValue[size.code]}
+                                                                    onChange={(e: ChangeEvent<HTMLInputElement>) => onPriceBySizeChange(e, size)}
+                                                                    label={size.name}
+                                                                    helperText={validatePriceBySize(size.code).message}
+                                                                    error={validatePriceBySize(size.code).isError}
+                                                                    disabled={isSubmitSuccess}
+                                                                    fullWidth
+                                                                    InputProps={{
+                                                                        inputComponent: TextMaskCustomNumber as any
+                                                                    }}
+                                                                />
+                                                            }
+                                                        </TimelineContent>
+                                                    </TimelineItem>
+                                                ))}
+                                            </Timeline>
+                                        </Grid>
+                                    )}
                                 </Grid>
-                            )}
-                        </Grid>
-                    </Grid>
+                            </Grid>
+                    }
                 </Grid>
             </Grid>
         </Grid>
