@@ -77,13 +77,14 @@ const statusOpts = [
 const Form = ({ formId, setProductName }: PropsType) => {
   const [additionalValue, setAdditionalValue] = useState<any>({
     priceBySize: null,
-    ingredient: null,
+    ingredients: null,
     img: null,
   });
   const [isSubmitSuccess, setIsSubmitSuccess] = useState<boolean>(false);
   const [categoryOpts, setCategoryOpts] = useState<BaseCategory[]>([]);
   const [sizeOpts, setSizeOpts] = useState<BaseProductSize[]>([])
   const [listIngredientOtps, setListIngredientOtps] = useState<BaseIngredient[]>([]);
+  const [detailProduct, setDetailProduct] = useState<any>()
   const { productCode } = useParams()
 
   const dispatch = useAppDispatch();
@@ -155,21 +156,33 @@ const Form = ({ formId, setProductName }: PropsType) => {
         },
         ingredients,
       }
+
       if (values.priceType === 1) {
         const priceBySize = additionalValue.priceBySize
         data.priceBySize = Object.keys(priceBySize).map((key: any) => ({ size: key, price: priceBySize[key].value }))
       }
       else {
-        data.priceBySize = [{ size: 'normal', price: values.singlePrice }]
+        data.priceBySize = [{ size: 'normal', price: stringThounsandToNumber(values.singlePrice) }]
       }
-      if (productCode) {
+      console.log(data);
 
+      if (productCode) {
+        handleUpdateProduct(data)
       }
       else {
         handleCreateProduct(data)
       }
     }
   };
+
+  const handleUpdateProduct = (data: ProductType) => {
+    getDataChange(data)
+  }
+
+  const getDataChange = (data: ProductType) => {
+    console.log(detailProduct, data);
+
+  }
 
   const handleCreateProduct = async (data: ProductType) => {
     dispatch(showLoading());
@@ -181,7 +194,9 @@ const Form = ({ formId, setProductName }: PropsType) => {
         dispatch(hideLoading());
       }
     } catch (error: any) {
-      toastServices.error(error.message)
+      if (error.response) {
+        toastServices.error(error.response.data.message)
+      }
       dispatch(hideLoading());
     }
   }
@@ -230,7 +245,7 @@ const Form = ({ formId, setProductName }: PropsType) => {
     })
     setAdditionalValue({
       priceBySize: null,
-      ingredient: null,
+      ingredients: null,
       img: null
     })
   }
@@ -240,6 +255,7 @@ const Form = ({ formId, setProductName }: PropsType) => {
       const res = await ProductServices.getByCode(`/get-by-code/${code}`, { signal })
       if (res.status === 'success') {
         const { data } = res
+        setDetailProduct(data)
         const { priceBySize, ingredients } = data
 
         const additionalPriceBySize: any = {}
